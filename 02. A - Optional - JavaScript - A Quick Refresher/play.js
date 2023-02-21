@@ -2,7 +2,7 @@ const name = "Max";
 let age = 29;
 const hasHobbbies = true;
 
-function summarizeUser(userName, userAge, userHasHobby) {
+const summarizeUser = (userName, userAge, userHasHobby) => {
   return "My name is " +
   userName +
    ", my age is " +
@@ -11,4 +11,13 @@ function summarizeUser(userName, userAge, userHasHobby) {
     userHasHobby;
 };
 
-console.log(summarizeUser(name, age, hasHobbbies));
+const add = (a, b) => a + b;
+
+const addOne = a => a + 1;
+
+const addRandom = () => 1 + 2;
+console.log(addRandom());
+
+
+
+//console.log(summarizeUser(name, age, hasHobbbies));
