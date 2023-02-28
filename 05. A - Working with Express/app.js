@@ -12,9 +12,9 @@ const shopRoutes = require("./routes/shop");
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Makingg use of Route Object adminRoutes:
-app.use(adminRoutes);
-// Makingg use of Route Object shopRoutes:
+// Making use of Route Object adminRoutes:
+app.use('/admin', adminRoutes);
+// Making use of Route Object shopRoutes:
 app.use(shopRoutes);
 // Catch-All Middleware for errors:
 app.use((req, res, next) => {
