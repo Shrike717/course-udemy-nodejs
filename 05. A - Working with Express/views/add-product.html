@@ -10,14 +10,17 @@
   <header>
     <nav>
       <ul>
+        <!-- Fetches wih GET request shop.html -->
         <li><a href="/">Shop</a></li>
-        <li><a href="/add-product">Add Product</a></li>
+        <!-- Fetches wih GET request add-product.html -->
+        <li><a href="/admin/add-product">Add Product</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <form action="/add-product" method="POST">
+    <!-- Triggers with POST request Add-Product Middlleware to store product in DB -->
+    <form action="/admin/add-product" method="POST">
       <input type="text" name="title">
       <button type="submit">Add Product</button>
     </form>
