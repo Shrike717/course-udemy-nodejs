@@ -3,6 +3,8 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 
+const rootDir = require("./util/path");
+
 // Making use of express
 const app = express();
 
@@ -13,6 +15,8 @@ const shopRoutes = require("./routes/shop");
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
+//Middleware for serving files statically:
+app.use(express.static(path.join(rootDir, 'public')));
 
 // Making use of Route Object adminRoutes:
 app.use('/admin', adminRoutes);
