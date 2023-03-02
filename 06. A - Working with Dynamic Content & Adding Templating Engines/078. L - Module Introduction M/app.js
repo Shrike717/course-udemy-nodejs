@@ -8,6 +8,10 @@ const rootDir = require("./util/path");
 // Making use of express
 const app = express();
 
+// Configurating and making use of Pug:
+app.set("view engine", "pug");
+app.set("views", "views");
+
 // Importing the Admin Routes:
 const adminData = require("./routes/admin");
 // Importing the Shop Routes:
