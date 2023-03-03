@@ -11,8 +11,7 @@ const products = [];
 
 // Middleware Routes: /admin/add-product. Watch Filter!
 router.get("/add-product", (req, res, next) => {
-  res.render("add-product", { pageTitle: "Add Product" });
-  //res.sendFile(path.join(rootDir, "views", "add-product.html"));
+  res.render("add-product", { pageTitle: "Add Product", path: "/admin/add-product" });
 });
 
 router.post("/add-product", (req, res, next) => {
