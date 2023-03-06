@@ -14,7 +14,7 @@ app.engine(
   'hbs',
   engine({
     layoutsDir: 'views/layouts/',
-    defaultLayout: false,
+    defaultLayout: 'main-layout',
     extname: 'hbs'
   })
 );
