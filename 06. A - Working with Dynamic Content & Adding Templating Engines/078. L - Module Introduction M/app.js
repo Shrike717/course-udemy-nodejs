@@ -2,23 +2,14 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const { engine } = require('express-handlebars');
 
 const rootDir = require("./util/path");
 
 // Making use of express
 const app = express();
 
-// Configurating and making use of Handlebars:
-app.engine(
-  'hbs',
-  engine({
-    layoutsDir: 'views/layouts/',
-    defaultLayout: 'main-layout',
-    extname: 'hbs'
-  })
-);
-app.set('view engine', 'hbs');
+// Configurating and making use of EJS:
+app.set('view engine', 'ejs');
 app.set('views', './views');
 
 // Importing the Admin Routes:
