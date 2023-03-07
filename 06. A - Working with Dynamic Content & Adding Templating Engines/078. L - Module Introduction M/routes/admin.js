@@ -23,7 +23,10 @@ router.get("/add-product", (req, res, next) => {
 router.post("/add-product", (req, res, next) => {
   products.push({ title: req.body.title });
   res.redirect("/");
+  //console.log(products);
 });
+//console.log("runtime");
+//console.log(products);
 
 exports.routes = router;
 exports.products = products;
