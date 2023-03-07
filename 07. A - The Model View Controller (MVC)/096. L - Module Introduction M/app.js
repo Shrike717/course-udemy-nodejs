@@ -13,7 +13,7 @@ app.set('view engine', 'ejs');
 app.set('views', './views');
 
 // Importing the Admin Routes:
-const adminData = require("./routes/admin");
+const adminRoutes = require("./routes/admin");
 // Importing the Shop Routes:
 const shopRoutes = require("./routes/shop");
 
@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, 'public')));
 
 // Making use of Route Object adminRoutes:
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 // Making use of Route Object shopRoutes:
 app.use(shopRoutes);
 // Catch-All Middleware for errors:
