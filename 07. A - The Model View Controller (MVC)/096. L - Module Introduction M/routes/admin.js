@@ -2,31 +2,14 @@ const path = require("path");
 
 const express = require("express");
 
-const rootDir = require("../util/path");
+const productsController = require("../controllers/products");
 
 // Making use of Router Module:
 const router = express.Router();
 
-const products = [];
-
 // Middleware Routes: /admin/add-product. Watch Filter!
-router.get("/add-product", (req, res, next) => {
-  res.render("add-product", {
-    pageTitle: "Add Product",
-    path: "/admin/add-product",
-    productCSS: true,
-    formsCSS: true,
-    activeAddProduct: true
-   });
-});
+router.get("/add-product", productsController.getAddProduct);
 
-router.post("/add-product", (req, res, next) => {
-  products.push({ title: req.body.title });
-  res.redirect("/");
-  //console.log(products);
-});
-//console.log("runtime");
-//console.log(products);
+router.post("/add-product", productsController.postAddProduct);
 
-exports.routes = router;
-exports.products = products;
+module.exports = router;
