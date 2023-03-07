@@ -3,7 +3,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 
-const rootDir = require("./util/path");
+const errorController = require("./controllers/error");
 
 // Making use of express
 const app = express();
@@ -20,15 +20,13 @@ const shopRoutes = require("./routes/shop");
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
 //Middleware for serving files statically:
-app.use(express.static(path.join(rootDir, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Making use of Route Object adminRoutes:
 app.use('/admin', adminRoutes);
 // Making use of Route Object shopRoutes:
 app.use(shopRoutes);
 // Catch-All Middleware for errors:
-app.use((req, res, next) => {
-  res.status(404).render("404", { pageTitle: "Page Not Found", path: "" });
-});
+app.use(errorController.get404);
 
 app.listen(3000);
