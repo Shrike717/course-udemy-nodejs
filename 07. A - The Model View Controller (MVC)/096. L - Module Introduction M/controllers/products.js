@@ -7,27 +7,27 @@ exports.getAddProduct = (req, res, next) => {
     path: "/admin/add-product",
     productCSS: true,
     formsCSS: true,
-    activeAddProduct: true
-   });
-}
+    activeAddProduct: true,
+  });
+};
 
 // Adds a product
 exports.postAddProduct = (req, res, next) => {
   const product = new Product(req.body.title);
   product.save();
   res.redirect("/");
-}
+};
 
 // Returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
-  const products = Product.fetchAll();
-  res.render("shop", {
-    prods: products,
-    pageTitle: "Shop",
-    path: "/",
-    hasProducts: products.length > 0,
-    productCSS: true,
-    activeShop: true,
+  Product.fetchAll((products) => {
+    res.render("shop", {
+      prods: products,
+      pageTitle: "Shop",
+      path: "/",
+      hasProducts: products.length > 0,
+      productCSS: true,
+      activeShop: true,
+    });
   });
-}
-4
+};
