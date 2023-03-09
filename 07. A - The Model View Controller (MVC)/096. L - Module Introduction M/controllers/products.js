@@ -11,14 +11,14 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-// Adds a product
+// Adds a product by instanciating it with user input from class
 exports.postAddProduct = (req, res, next) => {
   const product = new Product(req.body.title);
   product.save();
   res.redirect("/");
 };
 
-// Returns Product List Page in Shop:
+// Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
     res.render("shop", {
