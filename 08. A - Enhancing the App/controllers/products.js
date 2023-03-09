@@ -2,7 +2,8 @@ const Product = require("../bin/product");
 
 // Returns Add Product page:
 exports.getAddProduct = (req, res, next) => {
-  res.render("add-product", {
+  // Path seen from views folder defined in ejs
+  res.render("admin/add-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     productCSS: true,
@@ -21,7 +22,8 @@ exports.postAddProduct = (req, res, next) => {
 // Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
-    res.render("shop", {
+    // Path seen from views folder defined in ejs
+    res.render("shop/product-list", {
       prods: products,
       pageTitle: "Shop",
       path: "/",
