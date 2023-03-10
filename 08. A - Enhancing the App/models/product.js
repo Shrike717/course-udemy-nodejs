@@ -22,9 +22,13 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
+
   // Creates product object in instances
-  constructor(title) {
+  constructor(title, imageUrl, price, description) {
     this.title = title;
+    this.imageUrl = imageUrl;
+    this.price = price;
+    this.description = description;
   }
 
   // Asynchronous code!
@@ -34,6 +38,7 @@ module.exports = class Product {
   save() {
     getProductsFromFile(products => {
       products.push(this);
+      console.log(products);
       fs.writeFile(p, JSON.stringify(products), (err) => {
         console.log(err);
       });
