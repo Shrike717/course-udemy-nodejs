@@ -22,10 +22,12 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
+  // Creates product object in instances
   constructor(title) {
     this.title = title;
   }
 
+  // Asynchronous code!
   // The passed CB function gets either empty array or aray with products from helper function above
   // Then pushes new product in this array
   // Then writes new array to products.json file.
@@ -38,6 +40,7 @@ module.exports = class Product {
     });
   }
 
+  // Asynchronous code!
   // Is called from controller end gets CB function from there which returns roduct List Page in Shop.
   static fetchAll(cb) {
     getProductsFromFile(cb);
