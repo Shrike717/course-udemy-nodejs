@@ -36,6 +36,7 @@ module.exports = class Product {
   // Then pushes new product in this array
   // Then writes new array to products.json file.
   save() {
+    this.id =  Math.random().toString();
     getProductsFromFile(products => {
       products.push(this);
       console.log(products);
