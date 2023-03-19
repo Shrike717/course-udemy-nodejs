@@ -24,7 +24,7 @@ exports.getProducts = (req, res, next) => {
   });
 };
 
-// Gets one product by its id:
+// Gets one product by its id through the URL:
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   // Sends wanted product id to Model and gets back wanted product object.
@@ -36,6 +36,13 @@ exports.getProduct = (req, res, next) => {
       path: "/products"
     })
   });
+};
+
+// Gets product by its Id through the body from post request
+exports.postCart = (req, res, next) => {
+  const prodId = req.body.productId;
+  console.log(prodId);
+  res.redirect("/cart");
 };
 
 exports.getCart = (req, res, next) => {
