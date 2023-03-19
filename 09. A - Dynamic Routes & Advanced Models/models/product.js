@@ -47,8 +47,17 @@ module.exports = class Product {
   }
 
   // Asynchronous code!
-  // Is called from controller end gets CB function from there which returns roduct List Page in Shop.
+  // Is called from controller end gets CB function from there which returns Product List Page in Shop.
   static fetchAll(cb) {
     getProductsFromFile(cb);
-  }
+  };
+
+  // Asynchronous code!
+  // Gets one product by its id:
+  static findById(id, cb) {
+    getProductsFromFile(products => {
+      const product = products.find(p => p.id === id);
+      cb(product);
+    });
+  };
 };
