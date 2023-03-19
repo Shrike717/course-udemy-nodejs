@@ -27,10 +27,15 @@ exports.getProducts = (req, res, next) => {
 // Gets one product by its id:
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
+  // Sends wanted product id to Model and gets back wanted product object.
+  // Then sends product data to view and renders product details
   Product.findById(prodId, product => {
-    console.log(product);
+    res.render("shop/product-detail", {
+      product,
+      pageTitle: product.title,
+      path: "/products"
+    })
   });
-  res.redirect("/");
 };
 
 exports.getCart = (req, res, next) => {
