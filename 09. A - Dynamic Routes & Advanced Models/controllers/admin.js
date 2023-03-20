@@ -6,6 +6,7 @@ exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
+    editing: false,
   });
 };
 
@@ -31,22 +32,30 @@ exports.getEditProduct = (req, res, next) => {
   if (!editMode) {
     return res.redirect("/");
   }
-  // Path seen from views folder defined in ejs
-  res.render("admin/edit-product", {
-    pageTitle: "Edit Product",
-    path: "/admin/edit-product",
-    editing: editMode,
+  // Getting he product id
+  const prodId = req.params.productId;
+  // Receiving product with this id:
+  Product.findById(prodId, (product) => {
+    if (!product) {
+      res.redirect("/");
+    }
+    // Path seen from views folder defined in ejs
+    res.render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/edit-product",
+      editing: editMode,
+      product: product,
+    });
   });
 };
 
-
 exports.getProducts = (req, res, next) => {
-Product.fetchAll((products) => {
-  // Path seen from views folder defined in ejs
-  res.render("admin/products", {
-    prods: products,
-    pageTitle: "Admin Products",
-    path: "/admin/products"
+  Product.fetchAll((products) => {
+    // Path seen from views folder defined in ejs
+    res.render("admin/products", {
+      prods: products,
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+    });
   });
-});
-}
+};
