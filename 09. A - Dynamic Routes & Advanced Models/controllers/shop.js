@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Cart = require('../models/cart');
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
@@ -41,7 +42,11 @@ exports.getProduct = (req, res, next) => {
 // Gets product by its Id through the body from post request
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log(prodId);
+  // First  gets product by Id in Product model
+  // Then adding product to cart in cart model
+  Product.findById(prodId, (product) => {
+    Cart.addProduct(prodId, product.price);
+  });
   res.redirect("/cart");
 };
 
