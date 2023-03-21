@@ -49,6 +49,11 @@ exports.getEditProduct = (req, res, next) => {
   });
 };
 
+// Updating a product:
+exports.postEditProduct = (req, res, next) => {
+
+};
+
 exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
     // Path seen from views folder defined in ejs
