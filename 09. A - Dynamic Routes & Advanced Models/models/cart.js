@@ -13,7 +13,9 @@ module.exports = class Cart {
         cart = JSON.parse(fileContent);
       }
       // Analyze previous cart => Find existing product Index
-      const existingProductIndex = cart.products.findIndex(prod => prod.id === id);
+      const existingProductIndex = cart.products.findIndex(
+        (prod) => prod.id === id
+      );
       // Find product at Index
       const existingProduct = cart.products[existingProductIndex];
       let updatedProduct;
@@ -33,9 +35,35 @@ module.exports = class Cart {
       // Updating the price of the cart
       cart.totalPrice = cart.totalPrice + +productPrice;
       // After updating or adding new product cart gets written to JSON file
-      fs.writeFile(p, JSON.stringify(cart), err => {
+      fs.writeFile(p, JSON.stringify(cart), (err) => {
         console.log(err);
       });
     });
   }
+
+  // Deleting product from cart:
+  static deleteProduct(id, productPrice) {
+    // Fetch previous cart from file
+    fs.readFile(p, (err, fileContent) => {
+      if (err) {
+        return;
+      }
+        const updatedCart = {...JSON.parse(fileContent)};
+        // Finding product by id to get quantity in cart
+        const product = updatedCart.products.find(prod => prod.id === id);
+        const productQty = product.qty;
+        // Updating Array without products with wanted id
+        updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
+        // Updating total price of cart after deleting products
+        updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQty;
+
+         // After deleting product updated cart gets written to JSON file
+        fs.writeFile(p, JSON.stringify(updatedCart), (err) => {
+          console.log(err);
+        });
+      }
+    );
+  }
+
+
 };

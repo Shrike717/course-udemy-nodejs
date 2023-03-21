@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const Cart = require("./cart");
+
 // Defines path to file where we save globally
 const p = path.join(
   path.dirname(require.main.filename),
@@ -63,10 +65,11 @@ module.exports = class Product {
    // Updates products Array by forwarding all products withot the one with the incoming id.
   static deleteById(id) {
     getProductsFromFile((products) => {
+      const product = products.find(prod => prod.id  === id);
       const updatedProducts = products.filter((prod) => prod.id !== id);
       fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
         if (!err) {
-
+          Cart.deleteProduct(id, product.price);
         }
       });
     });
