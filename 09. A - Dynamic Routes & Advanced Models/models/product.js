@@ -22,9 +22,9 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
-
   // Creates product object in instances
-  constructor(title, imageUrl, price, description) {
+  constructor(id, title, imageUrl, price, description) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.price = price;
@@ -33,16 +33,29 @@ module.exports = class Product {
 
   // Asynchronous code!
   // The passed CB function gets either empty array or aray with products from helper function above
-  // Then pushes new product in this array
+  // Then checks for an existing id when save() getts callled from controller.
+  // If it finds one, the if block with the update loogic is executed.
+  // If not (id === nulll), the else block is executed to add new product
+  // It then pushes new product in this array
   // Then writes new array to products.json file.
   save() {
-    this.id =  Math.random().toString();
-    getProductsFromFile(products => {
-      products.push(this);
-      console.log(products);
-      fs.writeFile(p, JSON.stringify(products), (err) => {
-        console.log(err);
-      });
+    getProductsFromFile((products) => {
+      if (this.id) {
+        const existingProductIndex = products.findIndex(
+          (prod) => prod.id === this.id
+        );
+        const updatedProducts = [...products];
+        updatedProducts[existingProductIndex] = this;
+        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+          console.log(err);
+        });
+      } else {
+        this.id = Math.random().toString();
+        products.push(this);
+        fs.writeFile(p, JSON.stringify(products), (err) => {
+          console.log(err);
+        });
+      }
     });
   }
 
@@ -50,14 +63,14 @@ module.exports = class Product {
   // Is called from controller end gets CB function from there which returns Product List Page in Shop.
   static fetchAll(cb) {
     getProductsFromFile(cb);
-  };
+  }
 
   // Asynchronous code!
   // Gets one product by its id:
   static findById(id, cb) {
-    getProductsFromFile(products => {
-      const product = products.find(p => p.id === id);
+    getProductsFromFile((products) => {
+      const product = products.find((p) => p.id === id);
       cb(product);
     });
-  };
+  }
 };
