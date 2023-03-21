@@ -59,6 +59,19 @@ module.exports = class Product {
     });
   }
 
+   // Asynchronous code!
+   // Updates products Array by forwarding all products withot the one with the incoming id.
+  static deleteById(id) {
+    getProductsFromFile((products) => {
+      const updatedProducts = products.filter((prod) => prod.id !== id);
+      fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+        if (!err) {
+
+        }
+      });
+    });
+  }
+
   // Asynchronous code!
   // Is called from controller end gets CB function from there which returns Product List Page in Shop.
   static fetchAll(cb) {
