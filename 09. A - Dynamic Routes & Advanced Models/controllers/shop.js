@@ -25,7 +25,7 @@ exports.getProducts = (req, res, next) => {
   });
 };
 
-// Gets one product by its id through the URL:
+// Gets one product by its id through the URL and rendees detail page:
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   // Sends wanted product id to Model and gets back wanted product object.
@@ -39,7 +39,7 @@ exports.getProduct = (req, res, next) => {
   });
 };
 
-// Gets product by its Id through the body from post request
+// Gets product by its Id through the body from post request and adds product to cart
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   // First  gets product by Id in Product model
@@ -50,6 +50,7 @@ exports.postCart = (req, res, next) => {
   res.redirect("/cart");
 };
 
+// Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
   // Gets cart from Cart model
   Cart.getCart((cart) => {
@@ -59,7 +60,9 @@ exports.getCart = (req, res, next) => {
       const cartProducts = [];
       for (product of products) {
         // Extracting cart products to get the quantity value later on
-        const cardProductData = cart.products.find(prod => prod.id === product.id);
+        const cardProductData = cart.products.find(
+          (prod) => prod.id === product.id
+        );
         if (cardProductData) {
           // Combining a new product object with all info AND quantity by destructuring
           cartProducts.push({ productData: product, qty: cardProductData.qty });
@@ -72,6 +75,17 @@ exports.getCart = (req, res, next) => {
       });
     });
   });
+};
+
+// Deletes product in cart
+exports.postCartDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  // First  gets product by Id in Product model
+  // Then deleting product in cart in Cart model
+  Product.findById(prodId, (product) => {
+    Cart.deleteProduct(prodId, product.price);
+  });
+  res.redirect("/cart");
 };
 
 exports.getOrders = (req, res, next) => {
