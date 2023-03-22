@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const Cart = require('../models/cart');
+const Cart = require("../models/cart");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
@@ -30,12 +30,12 @@ exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   // Sends wanted product id to Model and gets back wanted product object.
   // Then sends product data to view and renders product details
-  Product.findById(prodId, product => {
+  Product.findById(prodId, (product) => {
     res.render("shop/product-detail", {
       product,
       pageTitle: product.title,
-      path: "/products"
-    })
+      path: "/products",
+    });
   });
 };
 
@@ -51,22 +51,39 @@ exports.postCart = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  res.render("shop/cart", {
-    pageTitle: "Your Cart",
-    path: "/cart"
-  })
+  // Gets cart from Cart model
+  Cart.getCart((cart) => {
+    // Gets all products from Product model
+    Product.fetchAll((products) => {
+      // Filtering the full products which are in the cart
+      const cartProducts = [];
+      for (product of products) {
+        // Extracting cart products to get the quantity value later on
+        const cardProductData = cart.products.find(prod => prod.id === product.id);
+        if (cardProductData) {
+          // Combining a new product object with all info AND quantity by destructuring
+          cartProducts.push({ productData: product, qty: cardProductData.qty });
+        }
+      }
+      res.render("shop/cart", {
+        pageTitle: "Your Cart",
+        path: "/cart",
+        products: cartProducts,
+      });
+    });
+  });
 };
 
 exports.getOrders = (req, res, next) => {
   res.render("shop/orders", {
     pageTitle: "Your Orders",
-    path: "/orders"
-  })
+    path: "/orders",
+  });
 };
 
 exports.getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
     pageTitle: "Checkout",
-    path: "/checkout"
-  })
+    path: "/checkout",
+  });
 };
