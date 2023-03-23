@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
+const db = require("./util/database");
 
 // Making use of express
 const app = express();
@@ -16,6 +17,8 @@ app.set('views', './views');
 const adminRoutes = require("./routes/admin");
 // Importing the Shop Routes:
 const shopRoutes = require("./routes/shop");
+
+db.execute("SELECT * FROM products");
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
