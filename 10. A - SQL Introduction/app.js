@@ -18,7 +18,7 @@ const adminRoutes = require("./routes/admin");
 // Importing the Shop Routes:
 const shopRoutes = require("./routes/shop");
 
-db.execute("SELECT * FROM products");
+db.execute("SELECT * FROM products").then().catch();
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
