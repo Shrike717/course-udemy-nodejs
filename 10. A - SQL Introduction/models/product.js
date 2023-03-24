@@ -30,6 +30,6 @@ module.exports = class Product {
   // Asynchronous code!
   // Gets one product by its id:
   static findById(id) {
-
+    return db.execute("SELECT * FROM products WHERE products.id = ?", [id])
   }
 };
