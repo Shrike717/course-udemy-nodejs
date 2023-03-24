@@ -3,27 +3,36 @@ const Cart = require("../models/cart");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll((products) => {
+  Product.fetchAll()
+  .then(([rows, fieldData]) => {
     // Path seen from views folder defined in ejs
     res.render("shop/index", {
-      prods: products,
+      prods: rows,
       pageTitle: "Shop",
       path: "/",
     });
+  })
+  .catch(err => {
+    console.log(err);
   });
 };
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll((products) => {
+  Product.fetchAll()
+  .then(([rows, fieldData]) => {
     // Path seen from views folder defined in ejs
     res.render("shop/product-list", {
-      prods: products,
+      prods: rows,
       pageTitle: "All Products",
       path: "/products",
     });
+  })
+  .catch(err => {
+    console.log(err);
   });
 };
+
 
 // Gets one product by its id through the URL and rendees detail page:
 exports.getProduct = (req, res, next) => {
