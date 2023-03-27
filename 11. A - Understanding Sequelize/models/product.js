@@ -1,35 +1,30 @@
-const db = require("../util/database");
+// const Sequelize = require("sequelize");
 
-const Cart = require("./cart");
+// Imported ths way to get intellisense autocomplete working
+const { Sequelize } = require('sequelize');
 
-module.exports = class Product {
-  // Creates product object in instances
-  constructor(id, title, imageUrl, price, description) {
-    this.id = id;
-    this.title = title;
-    this.imageUrl = imageUrl;
-    this.price = price;
-    this.description = description;
+const sequelize = require("../util/database");
+
+const Product = sequelize.define("product", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  title: Sequelize.STRING,
+  price: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+  },
+  imageUrl: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  description: {
+    title: Sequelize.STRING,
+    allowNull: false,
   }
+});
 
-  save() {
-    return db.execute("INSERT INTO products (title, price, description, imageUrl) VALUES (?, ?, ?, ?)",
-    [this.title, this.price, this.description, this.imageUrl])
-  }
-
-  static deleteById(id) {
-
-  }
-
-  // Asynchronous code!
-  // Is called from controller
-  static fetchAll() {
-    return db.execute("SELECT * FROM products");
-  }
-
-  // Asynchronous code!
-  // Gets one product by its id:
-  static findById(id) {
-    return db.execute("SELECT * FROM products WHERE products.id = ?", [id])
-  }
-};
+module.exports = Product;
