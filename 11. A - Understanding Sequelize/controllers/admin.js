@@ -10,19 +10,26 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-// Adds a product by instanciating it with user input from class
+// Adds a product by instanciating it with user input from Sequelize Model
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
   const price = req.body.price;
+  const imageUrl = req.body.imageUrl;
   const description = req.body.description;
 
-  const product = new Product(null, title, imageUrl, price, description);
-  product.save()
-    .then(() => {
-      res.redirect("/products");
+  Product.create({
+    title: title,
+    price: price,
+    imageUrl: imageUrl,
+    description: description,
+  })
+    .then((result) => {
+      // console.log(result);
+      console.log("Created product");
     })
-    .catch(err => {console.log(err)});
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 // Returns Edit Product page:
