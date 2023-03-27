@@ -36,17 +36,32 @@ exports.getProducts = (req, res, next) => {
 // Gets one product by its id through the URL and renders detail page:
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // Sends wanted product id to Model and gets back wanted product in nested array.
-  // Then sends product data as first element from array to view and renders product details
-  Product.findById(prodId)
-    .then(([product]) => {
+  // Find product by Id without where keyword. Result is an object not an array
+  Product.findByPk(prodId)
+    .then((product) => {
       res.render("shop/product-detail", {
-        product: product[0],
+        product: product,
         pageTitle: product.title,
         path: "/products",
       })
     })
     .catch(err => {console.log(err)});
+
+    // Sends wanted product id to Model and gets back wanted product in nested array.
+    // Then sends product data as first element from array to view and renders product details
+    // Product.findAll({ where: {
+    //   id: prodId,
+    // } })
+    //   .then( product => {
+    //     res.render("shop/product-detail", {
+    //       product: product[0],
+    //       pageTitle: product[0].title,
+    //       path: "/products",
+    //     });
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   })
 };
 
 // Gets product by its Id through the body from post request and adds product to cart
