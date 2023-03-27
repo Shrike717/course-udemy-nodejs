@@ -22,7 +22,7 @@ const Product = sequelize.define("product", {
     allowNull: false,
   },
   description: {
-    title: Sequelize.STRING,
+    type: Sequelize.STRING,
     allowNull: false,
   }
 });
