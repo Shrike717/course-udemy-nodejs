@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
-const db = require("./util/database");
+const sequelize = require("./util/database");
 
 // Making use of express
 const app = express();
@@ -30,4 +30,12 @@ app.use(shopRoutes);
 // Catch-All Middleware for errors:
 app.use(errorController.get404);
 
-app.listen(3000);
+// Syncing sequelize to database and server listening in case of no error
+sequelize.sync()
+.then(result => {
+  // console.log(result);
+  app.listen(3000);
+})
+.catch(err => {
+  console.log(err);
+});
