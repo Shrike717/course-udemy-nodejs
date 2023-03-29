@@ -7,6 +7,8 @@ const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 // Making use of express
 const app = express();
@@ -19,7 +21,6 @@ app.set('views', './views');
 const adminRoutes = require("./routes/admin");
 // Importing the Shop Routes:
 const shopRoutes = require("./routes/shop");
-const { HasMany } = require("sequelize");
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -43,9 +44,15 @@ app.use(shopRoutes);
 // Catch-All Middleware for errors:
 app.use(errorController.get404);
 
-// Setting up relation a user created a product:
+// Setting up relation a admin-user created a product: 1:n / n:1
 Product.belongsTo(User, {constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
+// Setting up relations between user and cart: 1:1
+User.hasOne(Cart);
+Cart.belongsTo(User);
+// Setting up relation between cart and product. Needs join-table CartItem n:n
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 // Syncing sequelize to database
 // returning dummy user  or  creating it
