@@ -1,6 +1,6 @@
 const Product = require("../models/product");
 
-// Returns Add Product page:
+// Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
   // Path seen from views folder defined in ejs
   res.render("admin/edit-product", {
@@ -32,7 +32,7 @@ exports.postAddProduct = (req, res, next) => {
   });
 };
 
-// Gets product which shall be edited and returns Edit Product page:
+// Gets product which shall be edited and returns pre-populated Edit Product page:
 exports.getEditProduct = (req, res, next) => {
   // Checks for optional data in query parameters:
   // query object is automatically given by express.
@@ -42,8 +42,12 @@ exports.getEditProduct = (req, res, next) => {
   // Getting he product id
   const prodId = req.params.productId;
   // Receiving product with this id and rendering edit product page if there is a product:
-  Product.findByPk(prodId)
-    .then((product) => {
+  // Product.findByPk(prodId)
+
+  // Gets only products of certain user to edit
+  req.user.getProducts({ where: {id: prodId} })
+    .then((products) => {
+      const product = products[0];
       if (!product) {
         res.redirect("/");
       }
@@ -89,18 +93,19 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
-  .then(products => {
-    // Path seen from views folder defined in ejs
-    res.render("admin/products", {
-      prods: products,
-      pageTitle: "Admin Products",
-      path: "/admin/products",
+  req.user
+    .getProducts()
+    .then(products => {
+      // Path seen from views folder defined in ejs
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      });
+    })
+    .catch(err => {
+      console.log(err);
     });
-  })
-  .catch(err => {
-    console.log(err);
-  });
 };
 
 // Deleting a product:
