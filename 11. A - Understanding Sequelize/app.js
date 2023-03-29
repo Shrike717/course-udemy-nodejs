@@ -26,6 +26,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Middleware to store user in request
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => {console.log(err)})
+});
+
 // Making use of Route Object adminRoutes:
 app.use('/admin', adminRoutes);
 // Making use of Route Object shopRoutes:
@@ -37,12 +47,26 @@ app.use(errorController.get404);
 Product.belongsTo(User, {constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
 
-// Syncing sequelize to database and server listening in case of no error
-sequelize.sync({ force: true })
-.then(result => {
-  // console.log(result);
-  app.listen(3000);
-})
-.catch(err => {
-  console.log(err);
+// Syncing sequelize to database
+// returning dummy user  or  creating it
+// server listening in case of no error
+sequelize
+  // .sync({ force: true })
+  .sync()
+  .then(result => {
+    return User.findByPk(1);
+    // console.log(result);
+  })
+  .then(user => {
+    if (!user) {
+      return User.create({ name: "Daniel", email: "test@test.com" })
+    }
+    return user;
+  })
+  .then(user => {
+    // console.log(user);
+    app.listen(3000);
+  })
+  .catch(err => {
+    console.log(err);
 });
