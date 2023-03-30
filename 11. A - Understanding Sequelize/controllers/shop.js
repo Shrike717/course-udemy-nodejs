@@ -118,13 +118,21 @@ exports.getCart = (req, res, next) => {
 
 // Deletes product in cart
 exports.postCartDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
   // First  gets product by Id in Product model
-  // Then deleting product in cart in Cart model
-  Product.findById(prodId, (product) => {
-    Cart.deleteProduct(prodId, product.price);
-  });
-  res.redirect("/cart");
+  const prodId = req.body.productId;
+  req.user
+    .getCart()
+    .then(cart => {
+      return cart.getProducts({ where: { id: prodId }});
+    })
+    .then(products => {
+      const product = products[0];
+      return product.cartItem.destroy();
+    })
+    .then(result => {
+      res.redirect("/cart");
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getOrders = (req, res, next) => {
