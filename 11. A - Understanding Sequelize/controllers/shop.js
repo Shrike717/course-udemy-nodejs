@@ -68,27 +68,28 @@ exports.getProduct = (req, res, next) => {
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   let fetchedCart; // Making cart available for all blocks
+  let newQuantity = 1; // Making new quantity available in all blocks
   req.user
   .getCart() // Gets access to the cart
   .then(cart => {  // Now cart is available
     fetchedCart = cart;
     return cart.getProducts({ where: { id: prodId } }) // Checks if newly added product is already in cart
   })
-  .then(products => { // Gives back array of products with zero or one product. But we only need first element.
+  .then(products => { // cart.getProducts gives back array of products with zero or one product. But we only need first element.
     let product;
     if (products.length > 0) { // Checks if p. already in cart and extracts it
       product = products[0];
     }
-    let newQuantity = 1;
     if (product) { // If there is already a p. increase qty
-      //....
+      const oldQuantity = product.cartItem.quantity; // CartItem is an object for table cartItems given by Sequelize
+      newQuantity = oldQuantity + 1;
+      return product;
     }
     return Product
-      .findByPk(prodId) // If p. wasn't in cart get it from products table
-      .then(product => {
-        fetchedCart.addProduct(product, { through: {quantity: newQuantity } }) // Magical method for n:n relations. Adds p. to carts and cartItems table
-      })
-      .catch(err => console.log(err));
+      .findByPk(prodId) // If p. wasn't in cart get it from products table and returns it
+  })
+  .then(product => { // Adds either returned p. which was already in cart or returned p. which wasn't in cart to cart
+    return fetchedCart.addProduct(product, { through: { quantity: newQuantity } }) // Magical method for n:n relations. Adds p. to carts and cartItems table and changes quantity in cartItems
   })
   .then(() => {
     res.redirect("/cart");
