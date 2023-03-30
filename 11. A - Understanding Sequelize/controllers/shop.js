@@ -45,7 +45,7 @@ exports.getProduct = (req, res, next) => {
         path: "/products",
       })
     })
-    .catch(err => {console.log(err)});
+    .catch(err => console.log(err));
 
     // Sends wanted product id to Model and gets back wanted product in nested array.
     // Then sends product data as first element from array to view and renders product details
@@ -67,21 +67,42 @@ exports.getProduct = (req, res, next) => {
 // Gets product by its Id through the body from post request and adds product to cart
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  // First  gets product by Id in Product model
-  // Then adding product to cart in cart model. Passes also the price which  is needed there
-  Product.findById(prodId, (product) => {
-    Cart.addProduct(prodId, product.price);
-  });
-  res.redirect("/cart");
+  let fetchedCart; // Making cart available for all blocks
+  req.user
+  .getCart() // Gets access to the cart
+  .then(cart => {  // Now cart is available
+    fetchedCart = cart;
+    return cart.getProducts({ where: { id: prodId } }) // Checks if newly added product is already in cart
+  })
+  .then(products => { // Gives back array of products with zero or one product. But we only need first element.
+    let product;
+    if (products.length > 0) { // Checks if p. already in cart and extracts it
+      product = products[0];
+    }
+    let newQuantity = 1;
+    if (product) { // If there is already a p. increase qty
+      //....
+    }
+    return Product
+      .findByPk(prodId) // If p. wasn't in cart get it from products table
+      .then(product => {
+        fetchedCart.addProduct(product, { through: {quantity: newQuantity } }) // Magical method for n:n relations. Adds p. to carts and cartItems table
+      })
+      .catch(err => console.log(err));
+  })
+  .then(() => {
+    res.redirect("/cart");
+  })
+  .catch(err => console.log(err));
 };
 
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then(cart => {
+    .getCart() // Gets access to the cart
+    .then(cart => { // Now cart is available
       return cart
-        .getProducts()
+        .getProducts() // Magical S. method
         .then(products => {
           res.render("shop/cart", {
             pageTitle: "Your Cart",
