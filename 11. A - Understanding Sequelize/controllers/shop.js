@@ -68,7 +68,7 @@ exports.getProduct = (req, res, next) => {
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   // First  gets product by Id in Product model
-  // Then adding product to cart in cart model
+  // Then adding product to cart in cart model. Passes also the price which  is needed there
   Product.findById(prodId, (product) => {
     Cart.addProduct(prodId, product.price);
   });
@@ -77,29 +77,21 @@ exports.postCart = (req, res, next) => {
 
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
-  // Gets cart from Cart model
-  Cart.getCart((cart) => {
-    // Gets all products from Product model
-    Product.fetchAll((products) => {
-      // Filtering the full products which are in the cart
-      const cartProducts = [];
-      for (product of products) {
-        // Extracting cart products to get the quantity value later on
-        const cardProductData = cart.products.find(
-          (prod) => prod.id === product.id
-        );
-        if (cardProductData) {
-          // Combining a new product object with all info AND quantity by destructuring
-          cartProducts.push({ productData: product, qty: cardProductData.qty });
-        }
-      }
-      res.render("shop/cart", {
-        pageTitle: "Your Cart",
-        path: "/cart",
-        products: cartProducts,
-      });
-    });
-  });
+  req.user
+    .getCart()
+    .then(cart => {
+      return cart
+        .getProducts()
+        .then(products => {
+          res.render("shop/cart", {
+            pageTitle: "Your Cart",
+            path: "/cart",
+            products: products,
+          });
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
 };
 
 // Deletes product in cart
