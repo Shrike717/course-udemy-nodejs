@@ -1,5 +1,4 @@
 const Product = require("../models/product");
-const Cart = require("../models/cart");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
@@ -123,7 +122,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   req.user
     .getCart()
     .then(cart => {
-      return cart.getProducts({ where: { id: prodId }});
+      return cart.getProducts({ where: { id: prodId }}); // Gets wanted product
     })
     .then(products => {
       const product = products[0];
@@ -131,6 +130,30 @@ exports.postCartDeleteProduct = (req, res, next) => {
     })
     .then(result => {
       res.redirect("/cart");
+    })
+    .catch(err => console.log(err));
+};
+
+// Creating an order:
+exports.postOrder = (req, res, next) => {
+  req.user
+    .getCart() // Getting cart of user
+    .then(cart => {
+      return cart.getProducts() // Getting products from cart
+    })
+    .then(products => {
+      return req.user
+      .createOrder() // Creates new Order for user
+      .then(order => {
+        return order.addProducts(products.map(product => { // Sets the quantity for every product by retrieving it from cartItem
+          product.orderItem = { quantity: product.cartItem.quantity };
+          return product;
+        }))
+      })
+      .then(result => {
+        res.redirect("/orders");
+      })
+      .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };
