@@ -136,9 +136,11 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 // Creating an order:
 exports.postOrder = (req, res, next) => {
+  let fetchedCart; // Making cart available in all blocks
   req.user
     .getCart() // Getting cart of user
     .then(cart => {
+      fetchedCart = cart;
       return cart.getProducts() // Getting products from cart
     })
     .then(products => {
@@ -150,24 +152,27 @@ exports.postOrder = (req, res, next) => {
           return product;
         }))
       })
-      .then(result => {
-        res.redirect("/orders");
-      })
       .catch(err => console.log(err));
+    })
+    .then(result => {
+      return fetchedCart.setProducts(null); // Deleting all products in cart by setting them to null with provided method
+    })
+    .then(result => {
+      res.redirect("/orders");
     })
     .catch(err => console.log(err));
 };
 
+// Getting orders and displaying them on orders Page
 exports.getOrders = (req, res, next) => {
-  res.render("shop/orders", {
-    pageTitle: "Your Orders",
-    path: "/orders",
-  });
-};
-
-exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    pageTitle: "Checkout",
-    path: "/checkout",
-  });
+  req.user
+  .getOrders({ include: ["products"] })
+  .then(orders => {
+    res.render("shop/orders", {
+      pageTitle: "Your Orders",
+      path: "/orders",
+      orders: orders
+    });
+  })
+  .catch(err => console.log(err));
 };
