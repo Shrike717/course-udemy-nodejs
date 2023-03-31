@@ -9,6 +9,8 @@ const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
 
 // Making use of express
 const app = express();
@@ -53,6 +55,12 @@ Cart.belongsTo(User);
 // Setting up relation between cart and product. Needs join-table CartItem n:n
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+// Setting up relation between user and order. 1:n
+Order.belongsTo(User);
+User.hasMany(Order);
+// Setting up relation between order and product. Needs join-table OrderItem n:n
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
 
 // Syncing sequelize to database
 // returning dummy user  or  creating it
