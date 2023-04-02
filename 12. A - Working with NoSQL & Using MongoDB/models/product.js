@@ -1,9 +1,16 @@
-// const Sequelize = require("sequelize");
+const mongoConnect = require("../util/database");
 
-// Imported ths way to get intellisense autocomplete working
-const { Sequelize } = require('sequelize');
+class Product {
 
-const sequelize = require("../util/database");
+  constructor(title, price, description, imageUrl) {
+    this.title = title,
+    this.price = price,
+    this.description = description,
+    this.imageUrl = imageUrl
+  }
+
+  save();
+};
 
 const Product = sequelize.define("product", {
   id: {
