@@ -1,10 +1,11 @@
+
 const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
-const mongoConnect = require("./util/database").mongoConnect;
+const { mongoConnect } = require("./util/database");
 
 // Making use of express
 const app = express();
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
   //     next();
   //   })
   //   .catch(err => {console.log(err)})
+  next();
 });
 
 // Making use of Route Object adminRoutes:
