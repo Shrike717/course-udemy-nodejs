@@ -13,9 +13,9 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-// // Importing the Admin Routes:
-// const adminRoutes = require("./routes/admin");
-// // Importing the Shop Routes:
+// Importing the Admin Routes:
+const adminRoutes = require("./routes/admin");
+// Importing the Shop Routes:
 // const shopRoutes = require("./routes/shop");
 
 // Middleware Parsing:
@@ -33,12 +33,12 @@ app.use((req, res, next) => {
   //   .catch(err => {console.log(err)})
 });
 
-// // Making use of Route Object adminRoutes:
-// app.use('/admin', adminRoutes);
-// // Making use of Route Object shopRoutes:
+// Making use of Route Object adminRoutes:
+app.use('/admin', adminRoutes);
+// Making use of Route Object shopRoutes:
 // app.use(shopRoutes);
 // // Catch-All Middleware for errors:
-// app.use(errorController.get404);
+app.use(errorController.get404);
 
 mongoConnect((client) => {
   console.log(client);
