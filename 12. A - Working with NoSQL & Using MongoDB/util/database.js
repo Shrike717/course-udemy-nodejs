@@ -1,3 +1,4 @@
+require('dotenv').config()
 const mongodb = require("mongodb");
 // Creating client object
 const MongoClient = mongodb.MongoClient;
@@ -7,7 +8,7 @@ let _db;
 
 // Method for connecting and then storing the connection to the DB. This keeps running.
 const mongoConnect = (callback) => {
-  MongoClient.connect("mongodb+srv://Daniel:nJcHhiLEQHUQqSVd@cluster0.igzmsfw.mongodb.net/shop?retryWrites=true&w=majority")
+  MongoClient.connect(process.env.DB_URI)
   .then(client => {
     console.log("Connected!");
     _db = client.db()
