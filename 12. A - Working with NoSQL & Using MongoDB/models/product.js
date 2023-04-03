@@ -13,7 +13,7 @@ class Product {
     // Connects to our instance of DB "shop"
     const db = getDb();
     // Interacts with the collecion "products".
-    // Has to  be returned to get a promise in the admin controller action
+    // Has to  be returned to get a promise in the admin controller action.
     return db.collection("products").insertOne(this)
       .then(result => {
         console.log(result);
