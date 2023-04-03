@@ -10,7 +10,7 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-// Adds a product by instanciating it with user input from Sequelize Model
+// Adds a product by instanciating it from Product Model
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const price = req.body.price;
@@ -88,21 +88,21 @@ exports.postAddProduct = (req, res, next) => {
 //     })
 // };
 
-// exports.getProducts = (req, res, next) => {
-//   req.user
-//     .getProducts()
-//     .then(products => {
-//       // Path seen from views folder defined in ejs
-//       res.render("admin/products", {
-//         prods: products,
-//         pageTitle: "Admin Products",
-//         path: "/admin/products",
-//       });
-//     })
-//     .catch(err => {
-//       console.log(err);
-//     });
-// };
+// Shows Admin Products page
+exports.getProducts = (req, res, next) => {
+  Product.fetchAll()
+    .then(products => {
+      // Path seen from views folder defined in ejs
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      });
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
 
 // // Deleting a product:
 // exports.postDeleteProduct = (req, res, next) => {
