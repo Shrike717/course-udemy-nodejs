@@ -35,8 +35,8 @@ exports.getProducts = (req, res, next) => {
 // Gets one product by its id through the URL and renders detail page:
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // Find product by Id without where keyword. Result is an object not an array
-  Product.findByPk(prodId)
+  // Find product by Id in Product model. Result is an object not an array
+  Product.findById(prodId)
     .then((product) => {
       res.render("shop/product-detail", {
         product: product,
