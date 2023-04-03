@@ -12,8 +12,9 @@ class Product {
   save() {
     // Connects to our instance of DB "shop"
     const db = getDb();
-    // Interacts with the collecion "products"
-    db.collection("products").insertOne(this)
+    // Interacts with the collecion "products".
+    // Has to  be returned to get a promise in the admin controller action
+    return db.collection("products").insertOne(this)
       .then(result => {
         console.log(result);
       })
