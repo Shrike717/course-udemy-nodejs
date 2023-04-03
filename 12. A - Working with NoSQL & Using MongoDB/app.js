@@ -17,7 +17,7 @@ app.set('views', './views');
 // Importing the Admin Routes:
 const adminRoutes = require("./routes/admin");
 // Importing the Shop Routes:
-// const shopRoutes = require("./routes/shop");
+const shopRoutes = require("./routes/shop");
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,10 +35,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Making use of Route Object adminRoutes:
+// Middleware for making use of Route Object adminRoutes:
 app.use('/admin', adminRoutes);
-// Making use of Route Object shopRoutes:
-// app.use(shopRoutes);
+// Middleware for making use of Route Object shopRoutes:
+app.use(shopRoutes);
 // // Catch-All Middleware for errors:
 app.use(errorController.get404);
 

@@ -2,7 +2,7 @@ const Product = require("../models/product");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then(products => {
       // Path seen from views folder defined in ejs
       res.render("shop/index", {
@@ -18,7 +18,7 @@ exports.getIndex = (req, res, next) => {
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
   .then(products => {
     // Path seen from views folder defined in ejs
     res.render("shop/product-list", {
