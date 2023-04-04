@@ -1,4 +1,8 @@
+const mongodb = require("mongodb");
 const Product = require("../models/product");
+
+// Extracts constructur for ObjectId
+const objectId = mongodb.ObjectId;
 
 // Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
@@ -16,16 +20,22 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const imageUrl = req.body.imageUrl;
-  const product = new Product(title, price, description, imageUrl);
-  product.save()
-  .then((result) => {
-    // console.log(result);
-    console.log("Created Product");
-    res.redirect("/admin/products");
-  })
-  .catch(err => {
-    console.log(err);
-  });
+  const product = new Product(
+    title,
+    price,
+    description,
+    imageUrl,
+  );
+  product
+    .save()
+    .then((result) => {
+      // console.log(result);
+      console.log("Created Product");
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // Step 1: Gets product which shall be edited and returns pre-populated Edit Product page:
@@ -53,9 +63,9 @@ exports.getEditProduct = (req, res, next) => {
         product: product,
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
-    })
+    });
 };
 
 // Step 2: Updating a product by click on Update button and saving it to DB:
@@ -64,32 +74,32 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.prodId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+  const updatedImageUrl = req.body.imageUrl;
 
-  //Then gets product by primary key (id) from DB and sets the new values.
-  // Then saves new product with
-  Product.findByPk(prodId)
-    .then(product => {
-      product.title = updatedTitle,
-      product.price = updatedPrice,
-      product.imageUrl = updatedImageUrl,
-      product.description = updatedDesc
-      return product.save();
+  // Creating new product but WITH captured id. Therefore updating product!
+  const product = new Product(
+    updatedTitle,
+    updatedPrice,
+    updatedDesc,
+    updatedImageUrl,
+    new objectId(prodId)
+  );
+  product // Then saving new instance
+    .save()
+    .then((result) => {
+      console.log("Updated Product!");
+      res.redirect("/admin/products");
     })
-    .then(result => {
-      console.log("Updated Product!")
-      res.redirect("/admin/products")
-    })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
-    })
+    });
 };
 
 // Shows Admin Products page
 exports.getProducts = (req, res, next) => {
   Product.fetchAll()
-    .then(products => {
+    .then((products) => {
       // Path seen from views folder defined in ejs
       res.render("admin/products", {
         prods: products,
@@ -97,7 +107,7 @@ exports.getProducts = (req, res, next) => {
         path: "/admin/products",
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };
