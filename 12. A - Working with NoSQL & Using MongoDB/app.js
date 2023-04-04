@@ -1,4 +1,3 @@
-
 const path = require("path");
 
 const express = require("express");
@@ -6,6 +5,7 @@ const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
 const { mongoConnect } = require("./util/database");
+const User = require("./models/user")
 
 // Making use of express
 const app = express();
@@ -26,13 +26,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to store user in request
 app.use((req, res, next) => {
-  // User.findByPk(1)
-  //   .then(user => {
-  //     req.user = user;
-  //     next();
-  //   })
-  //   .catch(err => {console.log(err)})
-  next();
+  User.findById("642c212665d957affe547b83")
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => {console.log(err)})
 });
 
 // Middleware for making use of Route Object adminRoutes:
