@@ -1,8 +1,4 @@
-const mongodb = require("mongodb");
 const Product = require("../models/product");
-
-// Extracts constructur for ObjectId
-const objectId = mongodb.ObjectId;
 
 // Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
@@ -83,7 +79,7 @@ exports.postEditProduct = (req, res, next) => {
     updatedPrice,
     updatedDesc,
     updatedImageUrl,
-    new objectId(prodId)
+    prodId
   );
   product // Then saving new instance
     .save()
