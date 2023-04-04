@@ -3,24 +3,35 @@ const { getDb } = require("../util/database");
 
 class Product {
 
-  constructor(title, price, description, imageUrl) {
-    this.title = title,
-    this.price = price,
-    this.description = description,
-    this.imageUrl = imageUrl
+  constructor(title, price, description, imageUrl, id) {
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.imageUrl = imageUrl;
+    this._id = id; //
   }
 
+  // Either saves new product or updates existing one
   save() {
     // Connects to our instance of DB "shop"
     const db = getDb();
+    let dbOp; // Declares DB Operation. Stores the different opeerations in order to return it in the end.
     // Interacts with the collecion "products".
     // Has to  be returned to get a promise in the admin controller action
-    return db.collection("products").insertOne(this)
-      .then(result => {
+    if (this._id) {
+      // Updates existing product
+      dbOp = db.collection("products")
+      .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: this });
+    } else {
+      // Saves new product
+      dbOp = db.collection("products")
+      .insertOne(this);
+    }
+     return dbOp.then(result => {
         console.log(result);
       })
       .catch(err => console.log(err));
-  }
+  };
 
   static fetchAll() {
     const db = getDb();
