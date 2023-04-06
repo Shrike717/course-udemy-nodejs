@@ -19,17 +19,21 @@ class User {
 
   addToCart(product) {
     // Checks whether added product is already in cart by finding index
-    const cartProductIndex = this.cart.items.findIndex(cp => {
+    const cartProductIndex = this.cart.items.findIndex((cp) => {
       return cp.productId.toString() === product._id.toString(); // Strict comparison not workng with ObjectId type. Therefore converting to strings
     });
     let newQuantity = 1; // Initialize new quantity
     const updatedCartItems = [...this.cart.items]; // Copying all items from cart array to work with for updating
 
-    if (cartProductIndex >= 0) { // If Index is anything then -1  = product exists already in cart
+    if (cartProductIndex >= 0) {
+      // If Index is anything then -1  = product exists already in cart
       newQuantity = this.cart.items[cartProductIndex].quantity + 1; // Incrementing qty on found product
       updatedCartItems[cartProductIndex].quantity = newQuantity; // Either updating qty  of existing product with incemented qty
     } else {
-      updatedCartItems.push({ productId: new ObjectId(product._id), quantity: newQuantity }) // Or adding new product to cart with qty 1
+      updatedCartItems.push({
+        productId: new ObjectId(product._id),
+        quantity: newQuantity,
+      }); // Or adding new product to cart with qty 1
     }
 
     const updatedCart = { items: updatedCartItems }; // Updates embedded Documemt carts in users collection
@@ -42,6 +46,28 @@ class User {
         { _id: new ObjectId(this._id) },
         { $set: { cart: updatedCart } }
       );
+  }
+
+  getCart() {
+    const db = getDb();
+    // Creates array wth productIds from cart in user collection
+    const productIds = this.cart.items.map((i) => {
+      return i.productId;
+    });
+    return db
+      .collection("products")
+      .find({ _id: { $in: productIds } }) // Filters products by Ids from array productIds. Returns cursor
+      .toArray()
+      .then((products) => { // Iterates over products and merges normal properties...
+        return products.map((p) => {
+          return {
+            ...p,
+            quantity: this.cart.items.find((i) => {
+              return i.productId.toString() === p._id.toString();
+            }).quantity // With qty for product which is rerieved and set with anoher iteration
+          };
+        });
+      });
   }
 
   static findById(userId) {

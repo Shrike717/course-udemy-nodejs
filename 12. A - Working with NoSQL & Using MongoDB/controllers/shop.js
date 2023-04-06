@@ -70,7 +70,7 @@ exports.postCart = (req, res, next) => {
     .then((product) => {
       return req.user.addToCart(product); // Calls method in user model.Prooduct  is needed there to update cart in users
     })
-    .then((result) => {
+    .then(() => {
       console.log(result);
     });
 
@@ -108,11 +108,7 @@ exports.postCart = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user
     .getCart() // Gets access to the cart
-    .then((cart) => {
-      // Now cart is available
-      return cart
-        .getProducts() // Magical S. method
-        .then((products) => {
+         .then((products) => {
           res.render("shop/cart", {
             pageTitle: "Your Cart",
             path: "/cart",
@@ -120,8 +116,6 @@ exports.getCart = (req, res, next) => {
           });
         })
         .catch((err) => console.log(err));
-    })
-    .catch((err) => console.log(err));
 };
 
 // Deletes product in cart
