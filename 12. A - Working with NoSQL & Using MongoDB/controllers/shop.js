@@ -70,8 +70,9 @@ exports.postCart = (req, res, next) => {
     .then((product) => {
       return req.user.addToCart(product); // Calls method in user model.Prooduct  is needed there to update cart in users
     })
-    .then(() => {
+    .then((result) => {
       console.log(result);
+      res.redirect("/cart");
     });
 
   // let fetchedCart; // Making cart available for all blocks
