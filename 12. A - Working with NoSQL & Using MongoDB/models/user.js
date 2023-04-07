@@ -86,16 +86,32 @@ class User {
 
   addOrder() {
     const db = getDb();
-    return db
-      .collection("orders") // New collection orders
-      .insertOne(this.cart) // Inserts cart items as order in DB
+    return this.getCart() // Calling getCart to get Array with products with enriched info from cart
+      .then((products) => {
+        const order = { // Creating new order with all info to  products
+          items: products,
+          user: { //...and some User info in embedded document
+            _id: new ObjectId(this._id),
+            name: this.name,
+          },
+        };
+        return db
+          .collection("orders") // New collection orders
+          .insertOne(order); // Inserts above order in DB
+      })
       .then((result) => {
         this.cart = { items: [] }; // Empties cart user objeect in memory afterwards
         return db.collection("users").updateOne(
           // Saving updated Cart to certain user
           { _id: new ObjectId(this._id) },
-          { $set: { cart: { items: [] } } }) // And empties cart also in DB afterwards
+          { $set: { cart: { items: [] } } }
+        ); // And empties cart also in DB afterwards
       });
+  }
+
+  getOrders() {
+    const db = getDb();
+    // return db.collection("orders").find()
   }
 
   static findById(userId) {
