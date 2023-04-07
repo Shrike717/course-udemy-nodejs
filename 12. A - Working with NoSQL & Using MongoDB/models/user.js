@@ -58,16 +58,30 @@ class User {
       .collection("products")
       .find({ _id: { $in: productIds } }) // Filters products by Ids from array productIds. Returns cursor
       .toArray()
-      .then((products) => { // Iterates over products and merges normal properties...
+      .then((products) => {
+        // Iterates over products and merges normal properties...
         return products.map((p) => {
           return {
             ...p,
             quantity: this.cart.items.find((i) => {
               return i.productId.toString() === p._id.toString();
-            }).quantity // With qty for product which is rerieved and set with anoher iteration
+            }).quantity, // With qty for product which is rerieved and set with anoher iteration
           };
         });
       });
+  }
+
+  deleteItemFromCart(productId) {
+    const updatedCartItems = this.cart.items.filter((item) => { // Filtering out unwanted product
+      return item.productId.toString() !== productId.toString();
+    });
+    const db = getDb();
+    return db
+      .collection("users")
+      .updateOne( // Saving updated Cart to certain user
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems } } }
+      );
   }
 
   static findById(userId) {
