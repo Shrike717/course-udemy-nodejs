@@ -74,49 +74,20 @@ exports.postCart = (req, res, next) => {
       console.log(result);
       res.redirect("/cart");
     });
-
-  // let fetchedCart; // Making cart available for all blocks
-  // let newQuantity = 1; // Making new quantity available in all blocks
-  // req.user
-  // .getCart() // Gets access to the cart
-  // .then(cart => {  // Now cart is available
-  //   fetchedCart = cart;
-  //   return cart.getProducts({ where: { id: prodId } }) // Checks if newly added product is already in cart
-  // })
-  // .then(products => { // cart.getProducts gives back array of products with zero or one product. But we only need first element.
-  //   let product;
-  //   if (products.length > 0) { // Checks if p. already in cart and extracts it
-  //     product = products[0];
-  //   }
-  //   if (product) { // If there is already a p. increase qty
-  //     const oldQuantity = product.cartItem.quantity; // CartItem is an object for table cartItems given by Sequelize
-  //     newQuantity = oldQuantity + 1;
-  //     return product;
-  //   }
-  //   return Product
-  //     .findByPk(prodId) // If p. wasn't in cart get it from products table and returns it
-  // })
-  // .then(product => { // Adds either returned p. which was already in cart or returned p. which wasn't in cart to cart
-  //   return fetchedCart.addProduct(product, { through: { quantity: newQuantity } }) // Magical method for n:n relations. Adds p. to carts and cartItems table and changes quantity in cartItems
-  // })
-  // .then(() => {
-  //   res.redirect("/cart");
-  // })
-  // .catch(err => console.log(err));
 };
 
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
   req.user
     .getCart() // Gets access to the cart
-         .then((products) => {
-          res.render("shop/cart", {
-            pageTitle: "Your Cart",
-            path: "/cart",
-            products: products,
-          });
-        })
-        .catch((err) => console.log(err));
+    .then((products) => {
+      res.render("shop/cart", {
+        pageTitle: "Your Cart",
+        path: "/cart",
+        products: products,
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 // Deletes product in cart
@@ -124,14 +95,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // First  gets product by Id in Product model
   const prodId = req.body.productId;
   req.user
-    .getCart()
-    .then((cart) => {
-      return cart.getProducts({ where: { id: prodId } }); // Gets wanted product
-    })
-    .then((products) => {
-      const product = products[0];
-      return product.cartItem.destroy();
-    })
+    .deleteItemFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
     })
