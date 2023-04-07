@@ -104,30 +104,8 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 // Creating an order:
 exports.postOrder = (req, res, next) => {
-  let fetchedCart; // Making cart available in all blocks
   req.user
-    .getCart() // Getting cart of user
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts(); // Getting products from cart
-    })
-    .then((products) => {
-      return req.user
-        .createOrder() // Creates new Order for user
-        .then((order) => {
-          return order.addProducts(
-            products.map((product) => {
-              // Sets the quantity for every product by retrieving it from cartItem
-              product.orderItem = { quantity: product.cartItem.quantity };
-              return product;
-            })
-          );
-        })
-        .catch((err) => console.log(err));
-    })
-    .then((result) => {
-      return fetchedCart.setProducts(null); // Deleting all products in cart by setting them to null with provided method
-    })
+    .addOrder()
     .then((result) => {
       res.redirect("/orders");
     })

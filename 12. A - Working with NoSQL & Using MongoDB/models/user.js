@@ -72,16 +72,30 @@ class User {
   }
 
   deleteItemFromCart(productId) {
-    const updatedCartItems = this.cart.items.filter((item) => { // Filtering out unwanted product
+    const updatedCartItems = this.cart.items.filter((item) => {
+      // Filtering out unwanted product
       return item.productId.toString() !== productId.toString();
     });
     const db = getDb();
+    return db.collection("users").updateOne(
+      // Saving updated Cart to certain user
+      { _id: new ObjectId(this._id) },
+      { $set: { cart: { items: updatedCartItems } } }
+    );
+  }
+
+  addOrder() {
+    const db = getDb();
     return db
-      .collection("users")
-      .updateOne( // Saving updated Cart to certain user
-        { _id: new ObjectId(this._id) },
-        { $set: { cart: { items: updatedCartItems } } }
-      );
+      .collection("orders") // New collection orders
+      .insertOne(this.cart) // Inserts cart items as order in DB
+      .then((result) => {
+        this.cart = { items: [] }; // Empties cart user objeect in memory afterwards
+        return db.collection("users").updateOne(
+          // Saving updated Cart to certain user
+          { _id: new ObjectId(this._id) },
+          { $set: { cart: { items: [] } } }) // And empties cart also in DB afterwards
+      });
   }
 
   static findById(userId) {
