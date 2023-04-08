@@ -115,7 +115,7 @@ exports.postOrder = (req, res, next) => {
 // Getting orders and displaying them on orders Page
 exports.getOrders = (req, res, next) => {
   req.user
-    .getOrders({ include: ["products"] })
+    .getOrders()
     .then((orders) => {
       res.render("shop/orders", {
         pageTitle: "Your Orders",

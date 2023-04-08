@@ -8,8 +8,9 @@ class User {
   constructor(username, email, cart, id) {
     this.name = username;
     this.email = email;
-    this.cart = cart; // Will be {items: []}
+    this.cart = cart ? cart : {}; // Safety initialization in case no cart availablle
     this._id = id;
+    this.cart.items = cart ? cart.items : []; // Safety initialization in case no cart.items array available
   }
 
   save() {
@@ -88,9 +89,11 @@ class User {
     const db = getDb();
     return this.getCart() // Calling getCart to get Array with products with enriched info from cart
       .then((products) => {
-        const order = { // Creating new order with all info to  products
+        const order = {
+          // Creating new order with all info to  products
           items: products,
-          user: { //...and some User info in embedded document
+          user: {
+            //...and some User info in embedded document
             _id: new ObjectId(this._id),
             name: this.name,
           },
@@ -109,9 +112,12 @@ class User {
       });
   }
 
-  getOrders() {
+  getOrders() { // Getting all ordeers for one certain  user
     const db = getDb();
-    // return db.collection("orders").find()
+    return db
+      .collection("orders")
+      .find({ "user._id": new ObjectId(this._id) }) // Filter: comparing nested User id with current user id. Returns cursor
+      .toArray();
   }
 
   static findById(userId) {
