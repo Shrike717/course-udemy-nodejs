@@ -2,8 +2,9 @@ const Product = require("../models/product");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find() // Static method from Mongoose
     .then((products) => {
+      console.log(products);
       // Path seen from views folder defined in ejs
       res.render("shop/index", {
         prods: products,
@@ -18,7 +19,7 @@ exports.getIndex = (req, res, next) => {
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       // Path seen from views folder defined in ejs
       res.render("shop/product-list", {
