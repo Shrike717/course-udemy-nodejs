@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const errorController = require("./controllers/error");
-const User = require("./models/user");
+// const User = require("./models/user");
 
 // Making use of express
 const app = express();
@@ -25,17 +25,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware to store user in request
-app.use((req, res, next) => {
-  User.findById("642c212665d957affe547b83")
-    .then((user) => {
-      req.user = new User(user.name, user.email, user.cart, user._id);
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+// // Middleware to store user in request
+// app.use((req, res, next) => {
+//   User.findById("642c212665d957affe547b83")
+//     .then((user) => {
+//       req.user = new User(user.name, user.email, user.cart, user._id);
+//       next();
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// });
 
 // Middleware for making use of Route Object adminRoutes:
 app.use("/admin", adminRoutes);
