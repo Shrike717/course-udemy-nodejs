@@ -7,10 +7,10 @@ const shopController = require("../controllers/shop");
 // Making use of Router Module:
 const router = express.Router();
 
-// // Routes for customer actions
-// router.get("/", shopController.getIndex);
+// Routes for customer actions
+router.get("/", shopController.getIndex);
 
-// router.get("/products", shopController.getProducts);
+router.get("/products", shopController.getProducts);
 
 // router.get("/products/:productId", shopController.getProduct);
 
