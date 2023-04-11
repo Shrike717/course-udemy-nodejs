@@ -73,16 +73,16 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description;
   const updatedImageUrl = req.body.imageUrl;
 
-  // Creating new product but WITH captured id. Therefore updating product!
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDesc,
-    updatedImageUrl,
-    prodId
-  );
-  product // Then saving new instance
-    .save()
+  // Finding product with id. Therefore updating product!
+  Product.findById(prodId)
+    .then((product) => { // Mapping updated values
+      (product.title = updatedTitle),
+      (product.price = updatedPrice),
+      (product.desccription = updatedDesc),
+      (product.imageUrl = updatedImageUrl);
+      return product // Loaded product (full mongoose-object with functions) will be updated by save method.
+        .save();
+    })
     .then((result) => {
       console.log("Updated Product!");
       res.redirect("/admin/products");
@@ -94,7 +94,7 @@ exports.postEditProduct = (req, res, next) => {
 
 // Shows Admin Products page
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       // Path seen from views folder defined in ejs
       res.render("admin/products", {
@@ -112,11 +112,11 @@ exports.getProducts = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   Product.deleteById(prodId)
-    .then(result => {
+    .then((result) => {
       console.log("Deleted Product!");
       res.redirect("/admin/products");
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
-    })
+    });
 };
