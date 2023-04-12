@@ -76,11 +76,12 @@ exports.postEditProduct = (req, res, next) => {
 
   // Finding product with id. Therefore updating product!
   Product.findById(prodId)
-    .then((product) => { // Mapping updated values
+    .then((product) => {
+      // Mapping updated values
       (product.title = updatedTitle),
-      (product.price = updatedPrice),
-      (product.desccription = updatedDesc),
-      (product.imageUrl = updatedImageUrl);
+        (product.price = updatedPrice),
+        (product.desccription = updatedDesc),
+        (product.imageUrl = updatedImageUrl);
       return product // Loaded product (full mongoose-object with functions) will be updated by save method.
         .save();
     })
@@ -96,7 +97,10 @@ exports.postEditProduct = (req, res, next) => {
 // Shows Admin Products page
 exports.getProducts = (req, res, next) => {
   Product.find()
+    // .select("title price -_id") // Utility methods to fetch only certain data fields
+    // .populate("userId", "name")
     .then((products) => {
+      console.log(products);
       // Path seen from views folder defined in ejs
       res.render("admin/products", {
         prods: products,
