@@ -64,8 +64,10 @@ exports.postCart = (req, res, next) => {
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart() // Gets access to the cart
-    .then((products) => {
+  .populate("cart.items.productId")
+    .then((user) => {
+      console.log(user.cart.items);
+      let products = user.cart.items
       res.render("shop/cart", {
         pageTitle: "Your Cart",
         path: "/cart",
