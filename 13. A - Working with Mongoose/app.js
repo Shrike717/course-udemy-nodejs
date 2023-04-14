@@ -48,7 +48,7 @@ app.use(errorController.get404);
 mongoose
   .connect(process.env.DB_URI)
   .then((result) => {
-    User.findOne().then((user) => { // Checks whether user is already defined. Only new user if not.
+    User.findOne().then((user) => { // Checks in DB whether user is already defined. If yes loads it. Only new user if not.
       if (!user) {
         const user = new User({
           name: "Daniel",
