@@ -1,10 +1,11 @@
 const Product = require("../models/product");
+const Order = require("../models/order");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
   Product.find() // Static method from Mongoose
     .then((products) => {
-      console.log(products);
+      // console.log(products);
       // Path seen from views folder defined in ejs
       res.render("shop/index", {
         prods: products,
@@ -56,7 +57,7 @@ exports.postCart = (req, res, next) => {
       return req.user.addToCart(product); // Calls method in user model.Prooduct  is needed there to update cart in users
     })
     .then((result) => {
-      console.log(result);
+      // console.log(result);
       res.redirect("/cart");
     });
 };
@@ -64,10 +65,10 @@ exports.postCart = (req, res, next) => {
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
   req.user
-  .populate("cart.items.productId")
+    .populate("cart.items.productId")
     .then((user) => {
-      console.log(user.cart.items);
-      let products = user.cart.items
+      // console.log(user.cart.items);
+      let products = user.cart.items;
       res.render("shop/cart", {
         pageTitle: "Your Cart",
         path: "/cart",
@@ -92,7 +93,21 @@ exports.postCartDeleteProduct = (req, res, next) => {
 // Creating an order:
 exports.postOrder = (req, res, next) => {
   req.user
-    .addOrder()
+    .populate("cart.items.productId")
+    .then((user) => {
+      // console.log(user)
+      const products = user.cart.items.map((i) => {
+        return { product: i.productId, quantity: i.quantity };
+      });
+      const order = new Order({
+        products: products,
+        user: {
+          name: req.user.name,
+          userId: req.user,
+        },
+      });
+      return order.save();
+    })
     .then((result) => {
       res.redirect("/orders");
     })
