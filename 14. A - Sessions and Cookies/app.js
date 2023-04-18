@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const session = require("express-session");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -24,6 +25,10 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
+// Middleware for intializing session
+app.use(
+  session({ secret: "my secret", resave: false, saveUninitialized: false })
+);
 
 // Middleware to store user in request
 app.use((req, res, next) => {
@@ -50,7 +55,8 @@ app.use(errorController.get404);
 mongoose
   .connect(process.env.DB_URI)
   .then((result) => {
-    User.findOne().then((user) => { // Checks in DB whether user is already defined. If yes loads it. Only new user if not.
+    User.findOne().then((user) => {
+      // Checks in DB whether user is already defined. If yes loads it. Only new user if not.
       if (!user) {
         const user = new User({
           name: "Daniel",
