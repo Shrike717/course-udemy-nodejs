@@ -3,7 +3,7 @@ const Order = require("../models/order");
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
-  const isLoggedIn = req.get("Cookie").split("=")[1].trim() === "true";
+  // const isLoggedIn = req.get("Cookie").split("=")[1].trim() === "true";
   Product.find() // Static method from Mongoose
     .then((products) => {
       // console.log(products);
@@ -12,7 +12,7 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
-        isAuthenticated: isLoggedIn,
+        isAuthenticated: false,
       });
     })
     .catch((err) => {
