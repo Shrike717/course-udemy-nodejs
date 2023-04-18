@@ -9,7 +9,7 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-// Handling post login requst
+// Handling post login request
 exports.postLogin = (req, res, next) => {
   User.findById("643579d57d06c46ba7a0313d")
     .then((user) => {
@@ -20,4 +20,12 @@ exports.postLogin = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
+};
+
+// Handling post logout request
+exports.postLogout = (req, res, next) => {
+  req.session.destroy((err) => {
+    console.log(err);
+    res.redirect("/");
+  });
 };
