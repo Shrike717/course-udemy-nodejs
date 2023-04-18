@@ -5,12 +5,18 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 // Making use of express
 const app = express();
+// Initiallizing a store for storing sessions on MongodB DDB
+const store = new MongoDBStore({
+  uri: process.env.DB_URI,
+  collection: "sessions",
+});
 
 // Configurating and making use of EJS:
 app.set("view engine", "ejs");
@@ -27,7 +33,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 // Middleware for intializing session
 app.use(
-  session({ secret: "my secret", resave: false, saveUninitialized: false })
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
 );
 
 // Middleware to store user in request
