@@ -41,18 +41,6 @@ app.use(
   })
 );
 
-// Middleware to store user in request
-app.use((req, res, next) => {
-  User.findById("643579d57d06c46ba7a0313d")
-    .then((user) => {
-      req.user = user; // Full Mongoose object with all methods
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
 app.use("/admin", adminRoutes);
 // Middleware for making use of Route Object shopRoutes:
