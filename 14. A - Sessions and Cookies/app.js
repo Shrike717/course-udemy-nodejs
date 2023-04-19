@@ -14,8 +14,8 @@ const User = require("./models/user");
 const app = express();
 // Initiallizing a store for storing sessions on MongodB DDB
 const store = new MongoDBStore({
-  uri: process.env.DB_URI,
-  collection: "sessions",
+	uri: process.env.DB_URI,
+	collection: "sessions",
 });
 
 // Configurating and making use of EJS:
@@ -33,12 +33,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 // Middleware for intializing session
 app.use(
-  session({
-    secret: "my secret",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
+	session({
+		secret: "my secret",
+		resave: false,
+		saveUninitialized: false,
+		store: store,
+	})
 );
 
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
@@ -52,23 +52,23 @@ app.use(errorController.get404);
 
 // Connection with mongoose.
 mongoose
-  .connect(process.env.DB_URI)
-  .then((result) => {
-    User.findOne().then((user) => {
-      // Checks in DB whether user is already defined. If yes loads it. Only new user if not.
-      if (!user) {
-        const user = new User({
-          name: "Daniel",
-          email: "daniel@test.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
-    app.listen(3000);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+	.connect(process.env.DB_URI)
+	.then((result) => {
+		User.findOne().then((user) => {
+			// Checks in DB whether user is already defined. If yes loads it. Only new user if not.
+			if (!user) {
+				const user = new User({
+					name: "Daniel",
+					email: "daniel@test.com",
+					cart: {
+						items: [],
+					},
+				});
+				user.save();
+			}
+		});
+		app.listen(3000);
+	})
+	.catch((err) => {
+		console.log(err);
+	});
