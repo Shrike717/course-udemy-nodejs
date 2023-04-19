@@ -9,6 +9,14 @@ exports.getLogin = (req, res, next) => {
 	});
 };
 
+exports.getSignup = (req, res, next) => {
+	res.render("auth/signup", {
+		path: "/signup",
+		pageTitle: "Signup",
+		isAuthenticated: false,
+	});
+};
+
 // Handling post login request
 exports.postLogin = (req, res, next) => {
 	User.findById("643579d57d06c46ba7a0313d")
@@ -16,7 +24,7 @@ exports.postLogin = (req, res, next) => {
 			req.session.isLoggedIn = true;
 			req.session.user = user;
 			req.session.save((err) => {
-                console.log(err);
+				console.log(err);
 				res.redirect("/");
 			});
 		})
@@ -24,6 +32,8 @@ exports.postLogin = (req, res, next) => {
 			console.log(err);
 		});
 };
+
+exports.postSignup = (req, res, next) => {};
 
 // Handling post logout request
 exports.postLogout = (req, res, next) => {
