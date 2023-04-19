@@ -24,7 +24,7 @@ exports.postLogin = (req, res, next) => {
 
 // Handling post logout request
 exports.postLogout = (req, res, next) => {
-	req.session.destroy((err) => {
+	req.session.destroy((err) => { // Deletes session in DB
 		console.log(err);
 		res.redirect("/");
 	});

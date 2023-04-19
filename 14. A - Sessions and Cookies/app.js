@@ -12,7 +12,7 @@ const User = require("./models/user");
 
 // Making use of express
 const app = express();
-// Initiallizing a store for storing sessions on MongodB DDB
+// Initializing a store for storing sessions on MongoDB DB
 const store = new MongoDBStore({
 	uri: process.env.DB_URI,
 	collection: "sessions",
@@ -40,6 +40,21 @@ app.use(
 		store: store,
 	})
 );
+
+// Middleware to store the user again for every request as Mongoose object but fueled with data from Session
+app.use((req, res, next) => {
+	if (!req.session.user) {
+		return next(); // If we are logged out and therefore no user skips next block
+	}
+	User.findById(req.session.user._id) // Working with MG uuser modell again to have all build in methods
+		.then((user) => {
+			req.user = user;
+			next();
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+});
 
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
 app.use("/admin", adminRoutes);
