@@ -5,8 +5,8 @@ const User = require("../models/user");
 // Getting and displaying them on Login Page
 exports.getLogin = (req, res, next) => {
 	res.render("auth/login", {
-		pageTitle: "Login",
 		path: "/login",
+		pageTitle: "Login",
 		isAuthenticated: req.session.isLoggedIn,
 	});
 };
@@ -15,7 +15,7 @@ exports.getSignup = (req, res, next) => {
 	res.render("auth/signup", {
 		path: "/signup",
 		pageTitle: "Signup",
-		isAuthenticated: false,
+		isAuthenticated: req.session.isLoggedIn,
 	});
 };
 
@@ -47,18 +47,19 @@ exports.postSignup = (req, res, next) => {
 			if (userDoc) {
 				return res.redirect("/signup");
 			}
-			return bcrypt.hash(password, 12);
-		})
-		.then((hashedPassword) => {
-			const user = new User({
-				email: email,
-				password: hashedPassword,
-				cart: { items: [] },
-			});
-			return user.save();
-		})
-		.then((result) => {
-			res.redirect("/login");
+			return bcrypt
+				.hash(password, 12)
+				.then((hashedPassword) => {
+					const user = new User({
+						email: email,
+						password: hashedPassword,
+						cart: { items: [] },
+					});
+					return user.save();
+				})
+				.then((result) => {
+					res.redirect("/login");
+				});
 		})
 		.catch((err) => {
 			console.log(err);
