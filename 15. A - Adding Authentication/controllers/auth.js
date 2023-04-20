@@ -33,7 +33,32 @@ exports.postLogin = (req, res, next) => {
 		});
 };
 
-exports.postSignup = (req, res, next) => {};
+// Handles Signup and checks if email already exists.
+// If yes, redirects to signup page again
+// If no, creates new user with credenials and redirects to login page
+exports.postSignup = (req, res, next) => {
+	const email = req.body.email;
+	const password = req.body.password;
+	const confirmPassword = req.body.confirmPassword;
+	User.findOne({ email: email })
+		.then((userDoc) => {
+			if (userDoc) {
+				return res.redirect("/signup");
+			}
+			const user = new User({
+				email: email,
+				password: password,
+				cart: { iems: [] },
+			});
+			return user.save();
+		})
+		.then((result) => {
+			res.redirect("/login");
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+};
 
 // Handling post logout request
 exports.postLogout = (req, res, next) => {
