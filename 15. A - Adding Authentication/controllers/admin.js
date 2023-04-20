@@ -2,6 +2,9 @@ const Product = require("../models/product");
 
 // Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect("/login");
+    }
 	// Path seen from views folder defined in ejs
 	res.render("admin/edit-product", {
 		pageTitle: "Add Product",
