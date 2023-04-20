@@ -69,19 +69,19 @@ app.use(errorController.get404);
 mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
-		User.findOne().then((user) => {
-			// Checks in DB whether user is already defined. If yes loads it. Only new user if not.
-			if (!user) {
-				const user = new User({
-					name: "Daniel",
-					email: "daniel@test.com",
-					cart: {
-						items: [],
-					},
-				});
-				user.save();
-			}
-		});
+		// User.findOne().then((user) => {
+		// 	// Checks in DB whether user is already defined. If yes loads it. Only new user if not.
+		// 	if (!user) {
+		// 		const user = new User({
+		// 			name: "Daniel",
+		// 			email: "daniel@test.com",
+		// 			cart: {
+		// 				items: [],
+		// 			},
+		// 		});
+		// 		user.save();
+		// 	}
+		// });
 		app.listen(3000);
 	})
 	.catch((err) => {
