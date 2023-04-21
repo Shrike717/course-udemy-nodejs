@@ -47,7 +47,6 @@ app.use(
 // Using csrf Middleware AFTER creating session
 app.use(csrfProtection);
 
-
 // Middleware to store the user again for every request as Mongoose object but fueled with data from Session
 app.use((req, res, next) => {
 	if (!req.session.user) {
@@ -61,6 +60,13 @@ app.use((req, res, next) => {
 		.catch((err) => {
 			console.log(err);
 		});
+});
+
+// Middlewaree to pass security informattion to every render function in controllers
+app.use((req, res, next) => {
+	res.locals.isAuthenticated = req.session.isLoggedIn;
+	res.locals.csrfToken = req.csrfToken();
+    next();
 });
 
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
