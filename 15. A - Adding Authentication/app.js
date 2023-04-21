@@ -7,6 +7,7 @@ require("dotenv").config();
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -46,6 +47,9 @@ app.use(
 );
 // Using csrf Middleware AFTER creating session
 app.use(csrfProtection);
+
+// Initialising connect flash (Must be after session)
+app.use(flash());
 
 // Middleware to store the user again for every request as Mongoose object but fueled with data from Session
 app.use((req, res, next) => {
