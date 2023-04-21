@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -17,6 +18,9 @@ const store = new MongoDBStore({
 	uri: process.env.DB_URI,
 	collection: "sessions",
 });
+
+// Initialising csrf protection:
+const csrfProtection = csrf();
 
 // Configurating and making use of EJS:
 app.set("view engine", "ejs");
@@ -40,6 +44,9 @@ app.use(
 		store: store,
 	})
 );
+// Using csrf Middleware AFTER creating session
+app.use(csrfProtection);
+
 
 // Middleware to store the user again for every request as Mongoose object but fueled with data from Session
 app.use((req, res, next) => {
