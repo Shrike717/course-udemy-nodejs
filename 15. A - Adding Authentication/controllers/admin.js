@@ -47,7 +47,7 @@ exports.getEditProduct = (req, res, next) => {
 	const editMode = req.query.edit;
 
 	// Getting the product id
-	const prodId = req.params.productId;
+	const prodId = req.params.productId
 	// Receiving product with this id and rendering edit product page if there is a product:
 
 	// Gets the product and renders edit form page if there is one
@@ -73,7 +73,7 @@ exports.getEditProduct = (req, res, next) => {
 // Step 2: Updating a product by click on Update button and saving it to DB:
 // First saves updated values from body in post request
 exports.postEditProduct = (req, res, next) => {
-	const prodId = req.body.prodId;
+	const prodId = req.body.productId;
 	const updatedTitle = req.body.title;
 	const updatedPrice = req.body.price;
 	const updatedDesc = req.body.description;
@@ -82,6 +82,7 @@ exports.postEditProduct = (req, res, next) => {
 	// Finding product with id. Therefore updating product!
 	Product.findById(prodId)
 		.then((product) => {
+            console.log(product);
 			// Mapping updated values
 			(product.title = updatedTitle),
 				(product.price = updatedPrice),
@@ -105,7 +106,7 @@ exports.getProducts = (req, res, next) => {
 		// .select("title price -_id") // Utility methods to fetch only certain data fields
 		// .populate("userId", "name")
 		.then((products) => {
-			console.log(products);
+			// console.log(products)
 			// Path seen from views folder defined in ejs
 			res.render("admin/products", {
 				prods: products,
