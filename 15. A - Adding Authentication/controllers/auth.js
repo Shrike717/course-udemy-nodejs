@@ -4,10 +4,16 @@ const User = require("../models/user");
 
 // Getting and displaying them on Login Page
 exports.getLogin = (req, res, next) => {
+	let message = req.flash("error");
+    if (message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
 	res.render("auth/login", {
 		path: "/login",
 		pageTitle: "Login",
-        errorMessage: req.flash("error")
+		errorMessage: message
 	});
 };
 
@@ -25,7 +31,7 @@ exports.postLogin = (req, res, next) => {
 	User.findOne({ email: email })
 		.then((user) => {
 			if (!user) {
-                req.flash("error", "Invalid email or passsword!");
+				req.flash("error", "Invalid email or passsword!");
 				return res.redirect("/login");
 			}
 			bcrypt
