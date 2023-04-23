@@ -15,6 +15,7 @@ const User = require("./models/user");
 
 // Making use of express
 const app = express();
+
 // Initializing a store for storing sessions on MongoDB DB
 const store = new MongoDBStore({
 	uri: process.env.DB_URI,
