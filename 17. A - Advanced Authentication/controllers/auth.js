@@ -147,7 +147,7 @@ exports.getReset = (req, res, next) => {
 
 // When button Reset Password is clicked
 exports.postReset = (req, res, next) => {
-    // First creating security token with build in module crypto
+	// First creating security token with build in module crypto
 	crypto.randomBytes(32, (err, buffer) => {
 		if (err) {
 			console.log(err);
@@ -173,7 +173,7 @@ exports.postReset = (req, res, next) => {
 					text: "You successfully signed up!",
 					html: `
                         <p>You requested a passsword reset<p>
-                        <p>Click this <a href="http://localhost:3000/${token}">link</a> to set a new password<p>
+                        <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password<p>
                     `,
 				};
 				sgMail
@@ -190,4 +190,30 @@ exports.postReset = (req, res, next) => {
 				console.log(err);
 			});
 	});
+};
+
+// Getting and displaying the New Password Page after click on link in email
+exports.getNewPassword = (req, res, next) => {
+	const token = req.params.token;
+	User.findOne({
+		resetToken: token,
+		resetTokenExpiration: { $gt: Date.now() },
+	})
+		.then((user) => {
+			let message = req.flash("error");
+			if (message.length > 0) {
+				message = message[0];
+			} else {
+				message = null;
+			}
+			res.render("auth/new-password", {
+				path: "/new-password",
+				pageTitle: "New Password",
+				errorMessage: message,
+                userId: user._id.toString(),
+			});
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 };
