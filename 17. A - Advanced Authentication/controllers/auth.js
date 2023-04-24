@@ -154,11 +154,11 @@ exports.postReset = (req, res, next) => {
 			return res.redirect("/reset");
 		}
 		const token = buffer.toString("hex"); // Needs hex to be converted to ASCII
-		User.findOne({ emeil: req.body.email })
+		User.findOne({ email: req.body.email })
 			.then((user) => {
 				if (!user) {
 					req.flash("error", "No account with that email found!");
-					return redirect("/reset");
+					return res.redirect("/reset");
 				}
 				user.resetToken = token; // Ssetting token to user object
 				user.resetTokenExpiration = Date.now() + 3600000; // Setting date + 1 hour
