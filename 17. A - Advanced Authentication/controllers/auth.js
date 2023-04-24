@@ -1,9 +1,12 @@
+const crypto = require("crypto");
+
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const User = require("../models/user");
 
 const sgMail = require("@sendgrid/mail");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Getting and displaying them on Login Page
@@ -93,7 +96,7 @@ exports.postSignup = (req, res, next) => {
 					return user.save();
 				})
 				.then((result) => {
-                    res.redirect("/login");
+					res.redirect("/login");
 					// Configurating Message and calling the send function on sgMail object with message afterwards
 					const msg = {
 						to: email, // Change to your recipient -> dan717@gmx.de
@@ -139,5 +142,52 @@ exports.getReset = (req, res, next) => {
 		path: "/reset",
 		pageTitle: "Reset Password",
 		errorMessage: message,
+	});
+};
+
+// When button Reset Password is clicked
+exports.postReset = (req, res, next) => {
+    // First creating security token with build in module crypto
+	crypto.randomBytes(32, (err, buffer) => {
+		if (err) {
+			console.log(err);
+			return res.redirect("/reset");
+		}
+		const token = buffer.toString("hex"); // Needs hex to be converted to ASCII
+		User.findOne({ emeil: req.body.email })
+			.then((user) => {
+				if (!user) {
+					req.flash("error", "No account with that email found!");
+					return redirect("/reset");
+				}
+				user.resetToken = token; // Ssetting token to user object
+				user.resetTokenExpiration = Date.now() + 3600000; // Setting date + 1 hour
+				return user.save();
+			})
+			.then((result) => {
+				res.redirect("/");
+				const msg = {
+					to: req.body.email, // Extracting email from reset form -> dan717@gmx.de
+					from: "dbauer.webdev@gmail.com", // Change to your verified sender -> our shop
+					subject: "Password reset",
+					text: "You successfully signed up!",
+					html: `
+                        <p>You requested a passsword reset<p>
+                        <p>Click this <a href="http://localhost:3000/${token}">link</a> to set a new password<p>
+                    `,
+				};
+				sgMail
+					.send(msg)
+					.then((response) => {
+						console.log(response[0].statusCode);
+						console.log(response[0].headers);
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	});
 };
