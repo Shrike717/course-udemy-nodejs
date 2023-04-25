@@ -34,7 +34,7 @@ const userSchema = new Schema({
 userSchema.methods.addToCart = function (product) {
 	//Checks whether added product is already in cart by finding index
 	const cartProductIndex = this.cart.items.findIndex((cp) => {
-		return cp.productId.toString() === product._id.toString(); // Strict comparison not workng with ObjectId type. Therefore converting to strings
+		return cp.productId.toString() === product._id.toString(); // Strict comparison not working with ObjectId type. Therefore converting to strings
 	});
 	let newQuantity = 1; // Initialize new quantity
 	const updatedCartItems = [...this.cart.items]; // Copying all items from cart array to work with for updating
