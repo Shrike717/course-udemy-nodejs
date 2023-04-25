@@ -2,7 +2,7 @@ const Product = require("../models/product");
 
 // Shows Admin Products page
 exports.getProducts = (req, res, next) => {
-	Product.find({userId: req.user._id})
+	Product.find({ userId: req.user.id })
 		// .select("title price -_id") // Utility methods to fetch only certain data fields
 		// .populate("userId", "name")
 		.then((products) => {
@@ -20,9 +20,9 @@ exports.getProducts = (req, res, next) => {
 
 // Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
-    if (!req.session.isLoggedIn) {
-        return res.redirect("/login");
-    }
+	if (!req.session.isLoggedIn) {
+		return res.redirect("/login");
+	}
 	// Path seen from views folder defined in ejs
 	res.render("admin/edit-product", {
 		pageTitle: "Add Product",
@@ -64,7 +64,7 @@ exports.getEditProduct = (req, res, next) => {
 	const editMode = req.query.edit;
 
 	// Getting the product id
-	const prodId = req.params.productId
+	const prodId = req.params.productId;
 	// Receiving product with this id and rendering edit product page if there is a product:
 
 	// Gets the product and renders edit form page if there is one
@@ -98,18 +98,21 @@ exports.postEditProduct = (req, res, next) => {
 	// Finding product with id. Therefore updating product!
 	Product.findById(prodId)
 		.then((product) => {
-            console.log(product);
+			if (product.userId.toString() !== req.user._id.toString()) {
+				// Check if user is allowed to edit this product
+				return res.redirect("/");
+			}
 			// Mapping updated values
 			(product.title = updatedTitle),
 				(product.price = updatedPrice),
 				(product.description = updatedDesc),
 				(product.imageUrl = updatedImageUrl);
-			return product // Loaded product (full mongoose-object with functions) will be updated by save method.
-				.save();
-		})
-		.then((result) => {
-			console.log("Updated Product!");
-			res.redirect("/admin/products");
+			return product
+				.save() // Loaded product (full mongoose-object with functions) will be updated by save method.
+				.then((result) => {
+					console.log("Updated Product!");
+					res.redirect("/admin/products");
+				});
 		})
 		.catch((err) => {
 			console.log(err);
@@ -119,10 +122,15 @@ exports.postEditProduct = (req, res, next) => {
 // Deleting a product:
 exports.postDeleteProduct = (req, res, next) => {
 	const prodId = req.body.productId;
-	Product.findByIdAndRemove(prodId)
+	Product.deleteOne({ _id: prodId, userId: req.user._id })
 		.then((result) => {
-			console.log("Deleted Product!");
-			res.redirect("/admin/products");
+			Product.findById(prodId).then((product) => {
+				// My check if product was deleted
+				if (!product) {
+					console.log("Deleted Product!");
+					res.redirect("/admin/products");
+				}
+			});
 		})
 		.catch((err) => {
 			console.log(err);
