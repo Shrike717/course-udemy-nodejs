@@ -160,7 +160,7 @@ exports.postReset = (req, res, next) => {
 					req.flash("error", "No account with that email found!");
 					return res.redirect("/reset");
 				}
-				user.resetToken = token; // Ssetting token to user object
+				user.resetToken = token; // Setting token to user object
 				user.resetTokenExpiration = Date.now() + 3600000; // Setting date + 1 hour
 				return user.save();
 			})
@@ -210,8 +210,40 @@ exports.getNewPassword = (req, res, next) => {
 				path: "/new-password",
 				pageTitle: "New Password",
 				errorMessage: message,
-                userId: user._id.toString(),
+				userId: user._id.toString(),
+				passwordToken: token,
 			});
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+};
+
+// Setting new password for user after click on Update Password Button
+exports.postNewPassword = (req, res, next) => {
+    const newPassword = req.body.password;
+	const userId = req.body.userId;
+	const passwordToken = req.body.passwordToken;
+	let resetUser;
+
+	User.findOne({
+		resetToken: passwordToken,
+		resetTokenExpiration: { $gt: Date.now() }, // Token date must be greater then actual date
+		_id: userId,
+	})
+		.then((user) => {
+            console.log(user);
+			resetUser = user;
+			return bcrypt.hashSync(newPassword, 12); // Encrypting new password
+		})
+		.then((hashedPassword) => {
+			resetUser.password = hashedPassword;
+			resetUser.resetToken = undefined; // Setting token back to undefined
+			resetUser.resetTokenExpiration = undefined; // Setting expiration back to undefined
+			return resetUser.save();
+		})
+		.then((result) => {
+			res.redirect("/login");
 		})
 		.catch((err) => {
 			console.log(err);

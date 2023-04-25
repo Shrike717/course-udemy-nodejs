@@ -84,7 +84,7 @@ exports.postEditProduct = (req, res, next) => {
 			// Mapping updated values
 			(product.title = updatedTitle),
 				(product.price = updatedPrice),
-				(product.desccription = updatedDesc),
+				(product.description = updatedDesc),
 				(product.imageUrl = updatedImageUrl);
 			return product // Loaded product (full mongoose-object with functions) will be updated by save method.
 				.save();
