@@ -1,5 +1,23 @@
 const Product = require("../models/product");
 
+// Shows Admin Products page
+exports.getProducts = (req, res, next) => {
+	Product.find({userId: req.user._id})
+		// .select("title price -_id") // Utility methods to fetch only certain data fields
+		// .populate("userId", "name")
+		.then((products) => {
+			// Path seen from views folder defined in ejs
+			res.render("admin/products", {
+				prods: products,
+				pageTitle: "Admin Products",
+				path: "/admin/products",
+			});
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+};
+
 // Returns Add/Edit Product form page:
 exports.getAddProduct = (req, res, next) => {
     if (!req.session.isLoggedIn) {
@@ -92,25 +110,6 @@ exports.postEditProduct = (req, res, next) => {
 		.then((result) => {
 			console.log("Updated Product!");
 			res.redirect("/admin/products");
-		})
-		.catch((err) => {
-			console.log(err);
-		});
-};
-
-// Shows Admin Products page
-exports.getProducts = (req, res, next) => {
-	Product.find()
-		// .select("title price -_id") // Utility methods to fetch only certain data fields
-		// .populate("userId", "name")
-		.then((products) => {
-			// console.log(products)
-			// Path seen from views folder defined in ejs
-			res.render("admin/products", {
-				prods: products,
-				pageTitle: "Admin Products",
-				path: "/admin/products",
-			});
 		})
 		.catch((err) => {
 			console.log(err);
