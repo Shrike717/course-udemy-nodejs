@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { validationResult } = require("express-validator");
 
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
@@ -79,6 +80,15 @@ exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const confirmPassword = req.body.confirmPassword;
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+        console.log(errors.array());
+		return res.status(422).render("auth/signup", {
+			path: "/signup",
+			pageTitle: "Signup",
+			errorMessage: errors.array(),
+		});
+	}
 	User.findOne({ email: email })
 		.then((userDoc) => {
 			if (userDoc) {
@@ -221,7 +231,7 @@ exports.getNewPassword = (req, res, next) => {
 
 // Setting new password for user after click on Update Password Button
 exports.postNewPassword = (req, res, next) => {
-    const newPassword = req.body.password;
+	const newPassword = req.body.password;
 	const userId = req.body.userId;
 	const passwordToken = req.body.passwordToken;
 	let resetUser;
@@ -232,7 +242,7 @@ exports.postNewPassword = (req, res, next) => {
 		_id: userId,
 	})
 		.then((user) => {
-            console.log(user);
+			console.log(user);
 			resetUser = user;
 			return bcrypt.hashSync(newPassword, 12); // Encrypting new password
 		})
