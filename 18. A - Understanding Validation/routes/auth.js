@@ -17,7 +17,7 @@ router.post(
 		check("email", "Please enter a valid email.").isEmail(),
 		check(
 			"password",
-			"Password has to be valid!"
+			"Please enter a valid password!"
 		)
 			.isLength({ min: 5 })
 			.isAlphanumeric(),
