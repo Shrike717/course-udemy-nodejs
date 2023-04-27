@@ -79,51 +79,44 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const confirmPassword = req.body.confirmPassword;
+
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-        console.log(errors.array());
+		console.log(errors.array());
 		return res.status(422).render("auth/signup", {
 			path: "/signup",
 			pageTitle: "Signup",
 			errorMessage: errors.array()[0].msg,
 		});
 	}
-	User.findOne({ email: email })
-		.then((userDoc) => {
-			if (userDoc) {
-				req.flash("error", "E-mail already exists!");
-				return res.redirect("/signup");
-			}
-			return bcrypt
-				.hash(password, 12)
-				.then((hashedPassword) => {
-					const user = new User({
-						email: email,
-						password: hashedPassword,
-						cart: { items: [] },
-					});
-					return user.save();
+	bcrypt
+		.hash(password, 12)
+		.then((hashedPassword) => {
+			const user = new User({
+				email: email,
+				password: hashedPassword,
+				cart: { items: [] },
+			});
+			return user.save();
+		})
+		.then((result) => {
+			res.redirect("/login");
+			// Configurating Message and calling the send function on sgMail object with message afterwards
+			const msg = {
+				to: email, // Change to your recipient -> dan717@gmx.de
+				from: "dbauer.webdev@gmail.com", // Change to your verified sender
+				subject: "Signup succeeded!",
+				text: "You successfully signed up!",
+				html: "<strong>You successfully signed up!</strong>",
+			};
+			sgMail
+				.send(msg)
+				.then((response) => {
+					console.log(response[0].statusCode);
+					console.log(response[0].headers);
 				})
-				.then((result) => {
-					res.redirect("/login");
-					// Configurating Message and calling the send function on sgMail object with message afterwards
-					const msg = {
-						to: email, // Change to your recipient -> dan717@gmx.de
-						from: "dbauer.webdev@gmail.com", // Change to your verified sender
-						subject: "Signup succeeded!",
-						text: "You successfully signed up!",
-						html: "<strong>You successfully signed up!</strong>",
-					};
-					sgMail
-						.send(msg)
-						.then((response) => {
-							console.log(response[0].statusCode);
-							console.log(response[0].headers);
-						})
-						.catch((error) => {
-							console.error(error);
-						});
+				.catch((error) => {
+					console.error(error);
 				});
 		})
 		.catch((err) => {
