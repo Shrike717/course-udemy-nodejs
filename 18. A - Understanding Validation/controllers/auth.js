@@ -53,6 +53,7 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
+    console.log(password);
 
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -121,6 +122,7 @@ exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const confirmPassword = req.body.confirmPassword;
+    console.log(password, confirmPassword);
 
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
