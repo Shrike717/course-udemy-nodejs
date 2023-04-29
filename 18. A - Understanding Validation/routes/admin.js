@@ -20,10 +20,10 @@ router.get("/products", isAuth, adminController.getProducts);
 router.post(
 	"/add-product",
 	[
-		body("title").trim().isString().isLength({ min: 3 }),
-		body("imageUrl").trim().isURL(),
-		body("price").trim().isFloat(),
-		body("description").trim().isLength({ min: 5, max: 400 }),
+		body("title", "Please enter a title with at least 3 character.").trim().isString().isLength({ min: 3 }),
+		body("imageUrl", "Please enter an image Url.").trim().isURL(),
+		body("price", "Please enter a price.").trim().isFloat(),
+		body("description", "Please enter a description with at least 5 characters.").trim().isLength({ min: 5, max: 400 }),
 	],
 	isAuth,
 	adminController.postAddProduct
@@ -36,10 +36,10 @@ router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
 router.post(
 	"/edit-product",
 	[
-		body("title").trim().isString().isLength({ min: 3 }),
-		body("imageUrl").trim().isURL(),
-		body("price").trim().isFloat(),
-		body("description").trim().isLength({ min: 5, max: 400 }),
+        body("title", "Please enter a title with at least 3 character.").trim().isString().isLength({ min: 3 }),
+		body("imageUrl", "Please enter an image Url.").trim().isURL(),
+		body("price", "Please enter a price.").trim().isFloat(),
+		body("description", "Please enter a description with at least 5 characters.").trim().isLength({ min: 5, max: 400 }),
 	],
 	isAuth,
 	adminController.postEditProduct

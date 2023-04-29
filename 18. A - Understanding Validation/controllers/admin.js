@@ -32,6 +32,7 @@ exports.getAddProduct = (req, res, next) => {
 		editing: false,
         hasError: false,
         errorMessage: null,
+        validationErrors: [],
 	});
 };
 
@@ -56,6 +57,7 @@ exports.postAddProduct = (req, res, next) => {
                 imageUrl: imageUrl,
 			},
             errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array(),
 		});
 	}
 
@@ -103,6 +105,7 @@ exports.getEditProduct = (req, res, next) => {
                 hasError: false,
 				product: product,
                 errorMessage: null,
+                validationErrors: [],
 			});
 		})
 		.catch((err) => {
@@ -118,6 +121,26 @@ exports.postEditProduct = (req, res, next) => {
 	const updatedPrice = req.body.price;
 	const updatedDesc = req.body.description;
 	const updatedImageUrl = req.body.imageUrl;
+    const errors = validationResult(req);
+    console.log(errors);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).render("admin/edit-product", {
+			pageTitle: "Edit Product",
+			path: "/admin/edit-product",
+			editing: true,
+            hasError: true,
+			product: { // Send old input data down to view to preserve input in fields
+				title: updatedTitle,
+				price: updatedPrice,
+                description: updatedDesc,
+                imageUrl: updatedImageUrl,
+                _id: prodId,
+			},
+            errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array(),
+		});
+	}
 
 	// Finding product with id. Therefore updating product!
 	Product.findById(prodId)
