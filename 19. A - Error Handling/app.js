@@ -9,7 +9,6 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
 
-
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
@@ -36,8 +35,10 @@ const authRoutes = require("./routes/auth");
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
+
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
+
 // Middleware for intializing session
 app.use(
 	session({
@@ -58,13 +59,16 @@ app.use((req, res, next) => {
 	if (!req.session.user) {
 		return next(); // If we are logged out and therefore no user skips next block
 	}
-	User.findById(req.session.user._id) // Working with MG uuser modell again to have all build in methods
+	User.findById(req.session.user._id) // Working with MG user modell again to have all build in methods
 		.then((user) => {
+			if (!user) {
+				return next();
+			}
 			req.user = user;
 			next();
 		})
 		.catch((err) => {
-			console.log(err);
+			throw new Error(err);
 		});
 });
 
@@ -72,7 +76,7 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
 	res.locals.isAuthenticated = req.session.isLoggedIn;
 	res.locals.csrfToken = req.csrfToken();
-    next();
+	next();
 });
 
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
