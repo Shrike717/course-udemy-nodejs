@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 		});
 });
 
-// Middlewaree to pass security informattion to every render function in controllers
+// Middleware to pass security information to every render function in controllers
 app.use((req, res, next) => {
 	res.locals.isAuthenticated = req.session.isLoggedIn;
 	res.locals.csrfToken = req.csrfToken();
@@ -91,6 +91,12 @@ app.get("/500", errorController.get500);
 
 // Catch-All Middleware for errors. Handles every request not handled before:
 app.use(errorController.get404);
+
+// Special error middleware with 4 arguments:
+app.use((error, req, res, next) => {
+	// res.status(error.httpStatusCode).render(...); // Another possibility to render page for user witth staus  code
+	res.redirect("/500");
+});
 
 // Connection with mongoose.
 mongoose
