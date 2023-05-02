@@ -5,3 +5,11 @@ exports.get404 = (req, res, next) => {
 		path: "",
 	});
 };
+
+// Returns 500 error Page
+exports.get500 = (req, res, next) => {
+	res.status(500).render("500", {
+		pageTitle: "Technical error",
+		path: "",
+	});
+};
