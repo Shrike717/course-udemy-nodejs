@@ -95,7 +95,12 @@ exports.postAddProduct = (req, res, next) => {
             //     errorMessage: "Database operation failed! Please try again",
             //     validationErrors: [],
             // });
-            res.redirect("/500");
+            // Error handling for technical errors but not the best solution:
+            // res.redirect("/500");
+            // Better error handling using special error middlleware:
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
 		});
 };
 
@@ -113,6 +118,7 @@ exports.getEditProduct = (req, res, next) => {
 	// Gets the product and renders edit form page if there is one
 	Product.findById(prodId)
 		.then((product) => {
+            // throw new Error(console.log("Dummy error getEditProduct")); // TTest error to provoke database fail
 			if (!product) {
 				res.redirect("/");
 			}
@@ -128,7 +134,9 @@ exports.getEditProduct = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-			console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
 		});
 };
 
