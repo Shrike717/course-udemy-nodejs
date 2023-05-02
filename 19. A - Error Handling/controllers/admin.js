@@ -19,7 +19,9 @@ exports.getProducts = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-			console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
 		});
 };
 
@@ -65,7 +67,7 @@ exports.postAddProduct = (req, res, next) => {
 	}
 
 	const product = new Product({
-        _id: new mongoose.Types.ObjectId("644795be0c52c543dac9bb50"), // Provoked error with already existing id
+        // _id: new mongoose.Types.ObjectId("644795be0c52c543dac9bb50"), // Provoked error with already existing id
 		title: title,
 		price: price,
 		description: description,
@@ -118,7 +120,7 @@ exports.getEditProduct = (req, res, next) => {
 	// Gets the product and renders edit form page if there is one
 	Product.findById(prodId)
 		.then((product) => {
-            // throw new Error(console.log("Dummy error getEditProduct")); // TTest error to provoke database fail
+            // throw new Error(console.log("Dummy error getEditProduct")); // Test error to provoke database fail
 			if (!product) {
 				res.redirect("/");
 			}
@@ -189,7 +191,9 @@ exports.postEditProduct = (req, res, next) => {
 				});
 		})
 		.catch((err) => {
-			console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
 		});
 };
 
@@ -207,6 +211,8 @@ exports.postDeleteProduct = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-			console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
 		});
 };
