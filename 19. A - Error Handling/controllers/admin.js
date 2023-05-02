@@ -1,3 +1,6 @@
+// Temporarily importing mongoose to provoke an error for test reasons:
+const mongoose = require("mongoose");
+
 const { validationResult } = require("express-validator");
 
 const Product = require("../models/product");
@@ -47,7 +50,7 @@ exports.postAddProduct = (req, res, next) => {
 	if (!errors.isEmpty()) {
 		return res.status(422).render("admin/edit-product", {
 			pageTitle: "Add Product",
-			path: "/admin/edit-product",
+			path: "/admin/add-product",
 			editing: false,
             hasError: true,
 			product: { // Send old input data down to view to preserve input in fields
@@ -62,6 +65,7 @@ exports.postAddProduct = (req, res, next) => {
 	}
 
 	const product = new Product({
+        _id: new mongoose.Types.ObjectId("644795be0c52c543dac9bb50"), // Provoked error with already existing id
 		title: title,
 		price: price,
 		description: description,
@@ -76,7 +80,22 @@ exports.postAddProduct = (req, res, next) => {
 			res.redirect("/admin/products");
 		})
 		.catch((err) => {
-			console.log(err);
+            // Error handling for temporary problem like nvalid user input:
+            // return res.status(500).render("admin/edit-product", {
+            //     pageTitle: "Add Product",
+            //     path: "/admin/add-product",
+            //     editing: false,
+            //     hasError: true,
+            //     product: { // Send old input data down to view to preserve input in fields
+            //         title: title,
+            //         price: price,
+            //         description: description,
+            //         imageUrl: imageUrl,
+            //     },
+            //     errorMessage: "Database operation failed! Please try again",
+            //     validationErrors: [],
+            // });
+            res.redirect("/500");
 		});
 };
 
@@ -127,7 +146,7 @@ exports.postEditProduct = (req, res, next) => {
 	if (!errors.isEmpty()) {
 		return res.status(422).render("admin/edit-product", {
 			pageTitle: "Edit Product",
-			path: "/admin/edit-product",
+			path: "/admin/add-product",
 			editing: true,
             hasError: true,
 			product: { // Send old input data down to view to preserve input in fields
