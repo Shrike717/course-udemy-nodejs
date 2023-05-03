@@ -8,6 +8,7 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const multer = require("multer");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -36,6 +37,9 @@ const authRoutes = require("./routes/auth");
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Middleware multer initialised:
+app.use(multer({ dest: "images" }).single("image"));
+
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -63,13 +67,13 @@ app.use((req, res, next) => {
 
 // Middleware to store the user again for every request as Mongoose object but fueled with data from Session
 app.use((req, res, next) => {
-    // throw new Error(" Sychronous Dummy error"); // In sychronous places i can throw an error
+	// throw new Error(" Sychronous Dummy error"); // In sychronous places i can throw an error
 	if (!req.session.user) {
 		return next(); // If we are logged out and therefore no user skips next block
 	}
 	User.findById(req.session.user._id) // Working with MG user modell again to have all build in methods
 		.then((user) => {
-            // throw new Error("Asynchronous Dummy error"); // Dummy error to test asynchronous error behaviour
+			// throw new Error("Asynchronous Dummy error"); // Dummy error to test asynchronous error behaviour
 			if (!user) {
 				return next();
 			}
@@ -80,7 +84,6 @@ app.use((req, res, next) => {
 			next(new Error(err)); // In asynchronous places i have to wrap error in next()
 		});
 });
-
 
 // Middleware for making use of Route Object adminRoutes with leading filter /admin
 app.use("/admin", adminRoutes);
@@ -99,11 +102,11 @@ app.use(errorController.get404);
 app.use((error, req, res, next) => {
 	// res.status(error.httpStatusCode).render(...); // Another possibility to render page for user witth staus  code
 	// res.redirect("/500"); // Redirect
-    console.log(error);
-    res.status(500).render("500", {
+	console.log(error);
+	res.status(500).render("500", {
 		pageTitle: "Technical error",
 		path: "",
-        isAuthenticated: req.session.isloggedIn
+		isAuthenticated: req.session.isloggedIn,
 	});
 });
 
