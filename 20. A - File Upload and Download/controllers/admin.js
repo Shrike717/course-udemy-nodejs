@@ -46,7 +46,8 @@ exports.postAddProduct = (req, res, next) => {
 	const title = req.body.title;
 	const price = req.body.price;
 	const description = req.body.description;
-	const imageUrl = req.body.imageUrl;
+	const imageUrl = req.body.image;
+    console.log(imageUrl);
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -82,7 +83,7 @@ exports.postAddProduct = (req, res, next) => {
 			res.redirect("/admin/products");
 		})
 		.catch((err) => {
-            // Error handling for temporary problem like nvalid user input:
+            // Error handling for temporary problem like invalid user input:
             // return res.status(500).render("admin/edit-product", {
             //     pageTitle: "Add Product",
             //     path: "/admin/add-product",
