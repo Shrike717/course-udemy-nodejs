@@ -22,6 +22,16 @@ const store = new MongoDBStore({
 	collection: "sessions",
 });
 
+// Configuration object for storing files:
+const fileStorage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, "images");
+	},
+	filename: (reg, file, cb) => {
+		cb(null, new Date().toISOString() + "-" + file.originalname);
+	},
+});
+
 // Initialising csrf protection:
 const csrfProtection = csrf();
 
@@ -38,7 +48,7 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Middleware multer initialised:
-app.use(multer({ dest: "images" }).single("image"));
+app.use(multer({ storage: fileStorage }).single("image"));
 
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
