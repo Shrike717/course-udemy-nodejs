@@ -65,6 +65,7 @@ app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 
 //Middleware for serving files statically:
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Middleware for intializing session
 app.use(
