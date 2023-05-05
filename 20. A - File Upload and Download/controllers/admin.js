@@ -19,9 +19,9 @@ exports.getProducts = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -35,9 +35,9 @@ exports.getAddProduct = (req, res, next) => {
 		pageTitle: "Add Product",
 		path: "/admin/add-product",
 		editing: false,
-        hasError: false,
-        errorMessage: null,
-        validationErrors: [],
+		hasError: false,
+		errorMessage: null,
+		validationErrors: [],
 	});
 };
 
@@ -46,8 +46,23 @@ exports.postAddProduct = (req, res, next) => {
 	const title = req.body.title;
 	const price = req.body.price;
 	const description = req.body.description;
-	const imageUrl = req.file;
-    console.log(imageUrl);
+	const image = req.file;
+	if (!image) {
+		return res.status(422).render("admin/edit-product", {
+			pageTitle: "Add Product",
+			path: "/admin/add-product",
+			editing: false,
+			hasError: true,
+			product: {
+				// Send old input data down to view to preserve input in fields
+				title: title,
+				price: price,
+				description: description,
+			},
+			errorMessage: "Attached file is not an image!",
+			validationErrors: [],
+		});
+	}
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -55,20 +70,23 @@ exports.postAddProduct = (req, res, next) => {
 			pageTitle: "Add Product",
 			path: "/admin/add-product",
 			editing: false,
-            hasError: true,
-			product: { // Send old input data down to view to preserve input in fields
+			hasError: true,
+			product: {
+				// Send old input data down to view to preserve input in fields
 				title: title,
 				price: price,
-                description: description,
-                imageUrl: imageUrl,
+				description: description,
 			},
-            errorMessage: errors.array()[0].msg,
-            validationErrors: errors.array(),
+			errorMessage: errors.array()[0].msg,
+			validationErrors: errors.array(),
 		});
 	}
 
+	// Creating path to image to store path with prooduct in database:
+	const imageUrl = image.path;
+
 	const product = new Product({
-        // _id: new mongoose.Types.ObjectId("644795be0c52c543dac9bb50"), // Provoked error with already existing id
+		// _id: new mongoose.Types.ObjectId("644795be0c52c543dac9bb50"), // Provoked error with already existing id
 		title: title,
 		price: price,
 		description: description,
@@ -83,27 +101,27 @@ exports.postAddProduct = (req, res, next) => {
 			res.redirect("/admin/products");
 		})
 		.catch((err) => {
-            // Error handling for temporary problem like invalid user input:
-            // return res.status(500).render("admin/edit-product", {
-            //     pageTitle: "Add Product",
-            //     path: "/admin/add-product",
-            //     editing: false,
-            //     hasError: true,
-            //     product: { // Send old input data down to view to preserve input in fields
-            //         title: title,
-            //         price: price,
-            //         description: description,
-            //         imageUrl: imageUrl,
-            //     },
-            //     errorMessage: "Database operation failed! Please try again",
-            //     validationErrors: [],
-            // });
-            // Error handling for technical errors but not the best solution:
-            // res.redirect("/500");
-            // Better error handling using special error middlleware:
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			// Error handling for temporary problem like invalid user input:
+			// return res.status(500).render("admin/edit-product", {
+			//     pageTitle: "Add Product",
+			//     path: "/admin/add-product",
+			//     editing: false,
+			//     hasError: true,
+			//     product: { // Send old input data down to view to preserve input in fields
+			//         title: title,
+			//         price: price,
+			//         description: description,
+			//         imageUrl: imageUrl,
+			//     },
+			//     errorMessage: "Database operation failed! Please try again",
+			//     validationErrors: [],
+			// });
+			// Error handling for technical errors but not the best solution:
+			// res.redirect("/500");
+			// Better error handling using special error middlleware:
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -121,7 +139,7 @@ exports.getEditProduct = (req, res, next) => {
 	// Gets the product and renders edit form page if there is one
 	Product.findById(prodId)
 		.then((product) => {
-            // throw new Error(console.log("Dummy error getEditProduct")); // Test error to provoke database fail
+			// throw new Error(console.log("Dummy error getEditProduct")); // Test error to provoke database fail
 			if (!product) {
 				res.redirect("/");
 			}
@@ -130,16 +148,16 @@ exports.getEditProduct = (req, res, next) => {
 				pageTitle: "Edit Product",
 				path: "/admin/edit-product",
 				editing: editMode,
-                hasError: false,
+				hasError: false,
 				product: product,
-                errorMessage: null,
-                validationErrors: [],
+				errorMessage: null,
+				validationErrors: [],
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -150,25 +168,25 @@ exports.postEditProduct = (req, res, next) => {
 	const updatedTitle = req.body.title;
 	const updatedPrice = req.body.price;
 	const updatedDesc = req.body.description;
-	const updatedImageUrl = req.body.imageUrl;
-    const errors = validationResult(req);
-    console.log(errors);
+	const image = req.file;
+	const errors = validationResult(req);
+	console.log(errors);
 
 	if (!errors.isEmpty()) {
 		return res.status(422).render("admin/edit-product", {
 			pageTitle: "Edit Product",
 			path: "/admin/add-product",
 			editing: true,
-            hasError: true,
-			product: { // Send old input data down to view to preserve input in fields
+			hasError: true,
+			product: {
+				// Send old input data down to view to preserve input in fields
 				title: updatedTitle,
 				price: updatedPrice,
-                description: updatedDesc,
-                imageUrl: updatedImageUrl,
-                _id: prodId,
+				description: updatedDesc,
+				_id: prodId,
 			},
-            errorMessage: errors.array()[0].msg,
-            validationErrors: errors.array(),
+			errorMessage: errors.array()[0].msg,
+			validationErrors: errors.array(),
 		});
 	}
 
@@ -180,10 +198,12 @@ exports.postEditProduct = (req, res, next) => {
 				return res.redirect("/");
 			}
 			// Mapping updated values
-			(product.title = updatedTitle),
-				(product.price = updatedPrice),
-				(product.description = updatedDesc),
-				(product.imageUrl = updatedImageUrl);
+			product.title = updatedTitle;
+			product.price = updatedPrice;
+			product.description = updatedDesc;
+			if (image) {
+				product.imageUrl = image.path;
+			}
 			return product
 				.save() // Loaded product (full mongoose-object with functions) will be updated by save method.
 				.then((result) => {
@@ -192,9 +212,9 @@ exports.postEditProduct = (req, res, next) => {
 				});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -212,8 +232,8 @@ exports.postDeleteProduct = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
