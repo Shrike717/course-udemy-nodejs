@@ -116,7 +116,7 @@ app.use(shopRoutes);
 // Middleware for making use of Route Object authRoutes:
 app.use(authRoutes);
 
-// Route for handlng technical errors:
+// Route for handling technical errors:
 app.get("/500", errorController.get500);
 
 // Catch-All Middleware for errors. Handles every request not handled before:
