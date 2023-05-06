@@ -17,9 +17,9 @@ exports.getIndex = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -35,9 +35,9 @@ exports.getProducts = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
 		});
 };
 
@@ -54,10 +54,10 @@ exports.getProduct = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
-        });
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
 };
 
 // Gets product by its Id through the body from post request and adds product to cart
@@ -88,10 +88,10 @@ exports.getCart = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
-        });
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
 };
 
 // Deletes product in cart
@@ -104,10 +104,10 @@ exports.postCartDeleteProduct = (req, res, next) => {
 			res.redirect("/cart");
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
-        });
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
 };
 
 // Creating an order:
@@ -138,10 +138,10 @@ exports.postOrder = (req, res, next) => {
 			res.redirect("/orders");
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
-        });
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
 };
 
 // Getting orders and displaying them on orders Page
@@ -155,23 +155,40 @@ exports.getOrders = (req, res, next) => {
 			});
 		})
 		.catch((err) => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
-        });
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
 };
 
-// Middllware function to get an invoice to an order only for authenticated user
-exports.getInvoice = (req, res,  next) => {
+// Middleware function to get an invoice to an order only for authenticated user
+exports.getInvoice = (req, res, next) => {
     const orderId = req.params.orderId;
-    const invoiceName = "invoice-" + orderId + ".pdf";
-    const invoicePath = path.join("data", "invoices", invoiceName);
-    fs.readFile(invoicePath, (err, data) => {
-        if (err) {
-            return next(err);
-        }
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", 'inline; filename="' + invoiceName +'"');
-        res.send(data);
-    });
+	//  Check that user can only see orders he created himself:
+	Order.findById(orderId)
+		.then((order) => {
+			if (!order) {
+				return next(new Error("No order found!"));
+			}
+            // Compares userId on order with id of logged in user
+			if (order.user.userId.toString() !== req.user._id.toString()) {
+				return next(new Error("Unauthorized",));
+			}
+			const invoiceName = "invoice-" + orderId + ".pdf";
+			const invoicePath = path.join("data", "invoices", invoiceName);
+			fs.readFile(invoicePath, (err, data) => {
+				if (err) {
+					return next(err);
+				}
+				res.setHeader("Content-Type", "application/pdf");
+				res.setHeader(
+					"Content-Disposition",
+					'inline; filename="' + invoiceName + '"'
+				);
+				res.send(data);
+			});
+		})
+		.catch((err) => {
+			return next(err);
+		});
 };
