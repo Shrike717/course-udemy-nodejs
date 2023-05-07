@@ -163,30 +163,40 @@ exports.getOrders = (req, res, next) => {
 
 // Middleware function to get an invoice to an order only for authenticated user
 exports.getInvoice = (req, res, next) => {
-    const orderId = req.params.orderId;
+	const orderId = req.params.orderId;
 	//  Check that user can only see orders he created himself:
 	Order.findById(orderId)
 		.then((order) => {
 			if (!order) {
 				return next(new Error("No order found!"));
 			}
-            // Compares userId on order with id of logged in user
+			// Compares userId on order with id of logged in user
 			if (order.user.userId.toString() !== req.user._id.toString()) {
-				return next(new Error("Unauthorized",));
+				return next(new Error("Unauthorized"));
 			}
 			const invoiceName = "invoice-" + orderId + ".pdf";
 			const invoicePath = path.join("data", "invoices", invoiceName);
-			fs.readFile(invoicePath, (err, data) => {
-				if (err) {
-					return next(err);
-				}
-				res.setHeader("Content-Type", "application/pdf");
-				res.setHeader(
-					"Content-Disposition",
-					'inline; filename="' + invoiceName + '"'
-				);
-				res.send(data);
-			});
+			// File served ny reading. Not best practice:
+			// fs.readFile(invoicePath, (err, data) => {
+			// 	if (err) {
+			// 		return next(err);
+			// 	}
+			// res.setHeader("Content-Type", "application/pdf");
+			// res.setHeader(
+			// 	"Content-Disposition",
+			// 	'inline; filename="' + invoiceName + '"'
+			// );
+			// 	res.send(data);
+			// });
+
+			// File served with stream. Better:
+			const file = fs.createReadStream(invoicePath);
+			res.setHeader("Content-Type", "application/pdf");
+			res.setHeader(
+				"Content-Disposition",
+				'inline; filename="' + invoiceName + '"'
+			);
+            file.pipe(res);
 		})
 		.catch((err) => {
 			return next(err);
