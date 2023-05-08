@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const PDFDocument = require('pdfkit');
+
 const Product = require("../models/product");
 const Order = require("../models/order");
 
@@ -176,6 +178,21 @@ exports.getInvoice = (req, res, next) => {
 			}
 			const invoiceName = "invoice-" + orderId + ".pdf";
 			const invoicePath = path.join("data", "invoices", invoiceName);
+
+            // Creating PDF with pdfkit dynamically on the fly
+            const pdfDoc = new PDFDocument();
+            pdfDoc.pipe(fs.createWriteStream(invoicePath));
+            pdfDoc.pipe(res);
+            res.setHeader("Content-Type", "application/pdf");
+			res.setHeader(
+				"Content-Disposition",
+				'inline; filename="' + invoiceName + '"'
+			);
+
+            pdfDoc.text("Hello world!");
+
+            pdfDoc.end();
+
 			// File served ny reading. Not best practice:
 			// fs.readFile(invoicePath, (err, data) => {
 			// 	if (err) {
@@ -189,14 +206,14 @@ exports.getInvoice = (req, res, next) => {
 			// 	res.send(data);
 			// });
 
-			// File served with stream. Better:
-			const file = fs.createReadStream(invoicePath);
-			res.setHeader("Content-Type", "application/pdf");
-			res.setHeader(
-				"Content-Disposition",
-				'inline; filename="' + invoiceName + '"'
-			);
-            file.pipe(res);
+			// // File served with stream. Better:
+			// const file = fs.createReadStream(invoicePath);
+			// res.setHeader("Content-Type", "application/pdf");
+			// res.setHeader(
+			// 	"Content-Disposition",
+			// 	'inline; filename="' + invoiceName + '"'
+			// );
+            // file.pipe(res);
 		})
 		.catch((err) => {
 			return next(err);
