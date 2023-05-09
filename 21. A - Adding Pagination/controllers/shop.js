@@ -6,10 +6,15 @@ const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
+const ITEMS_PER_PAGE = 2;
+
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
+    const page = req.query.page;
 	Product.find() // Static method from Mongoose
-		.then((products) => {
+        .skip((page -1) * ITEMS_PER_PAGE) // Skips itms of previous pages
+		.limit(ITEMS_PER_PAGE) // Limits fetched items to specified value
+        .then((products) => {
 			// console.log(products);
 			// Path seen from views folder defined in ejs
 			res.render("shop/index", {
