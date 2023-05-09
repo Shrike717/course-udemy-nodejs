@@ -10,17 +10,30 @@ const ITEMS_PER_PAGE = 2;
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
-    const page = req.query.page;
-	Product.find() // Static method from Mongoose
-        .skip((page -1) * ITEMS_PER_PAGE) // Skips itms of previous pages
-		.limit(ITEMS_PER_PAGE) // Limits fetched items to specified value
-        .then((products) => {
+	const page = req.query.page;
+    let totalItems;
+
+	Product.find()  // Static method from Mongoose used to first get count
+		.countDocuments() // Gives back number of all products
+		.then((numProducts) => {
+            totalItems = numProducts; // Sets total number of products
+			Product.find() // Static method from Mongoose fetches items
+				.skip((page - 1) * ITEMS_PER_PAGE) // Skips itms of previous pages
+				.limit(ITEMS_PER_PAGE); // Limits fetched items to specified value
+		})
+		.then((products) => {
 			// console.log(products);
 			// Path seen from views folder defined in ejs
 			res.render("shop/index", {
 				prods: products,
 				pageTitle: "Shop",
 				path: "/",
+                totalProducts: totalItems,
+                nextPage: page +1,
+                previousPage: page -1,
+                hasNextPage: page * ITEMS_PER_PAGE < totalItems,
+                hasPreviousPage: page > 1,
+                highestPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
 			});
 		})
 		.catch((err) => {
@@ -193,23 +206,26 @@ exports.getInvoice = (req, res, next) => {
 				"Content-Disposition",
 				'inline; filename="' + invoiceName + '"'
 			);
-            // Writing PDF:
+			// Writing PDF:
 			pdfDoc.fontSize(26).text("Invoice", {
 				underline: true,
 			});
 			// pdfDoc.moveDown(); // Leerzeile
 			pdfDoc.fontSize(12).text("--------------------");
-            let totalPrice = 0;
+			let totalPrice = 0;
 			order.products.forEach((prod) => {
-				totalPrice = (totalPrice += prod.quantity * prod.product.price);
+				totalPrice = totalPrice += prod.quantity * prod.product.price;
 				pdfDoc
 					.fontSize(12)
 					.text(
 						`${prod.product.title} - ${prod.quantity} x $ ${prod.product.price}`
 					);
 			});
-            pdfDoc.fontSize(12).text("--------------------");
-            pdfDoc.font("Helvetica-Bold").fontSize(12).text(`Total: $ ${totalPrice}`);
+			pdfDoc.fontSize(12).text("--------------------");
+			pdfDoc
+				.font("Helvetica-Bold")
+				.fontSize(12)
+				.text(`Total: $ ${totalPrice}`);
 			pdfDoc.end();
 
 			// File served ny reading. Not best practice:
