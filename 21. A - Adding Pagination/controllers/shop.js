@@ -11,14 +11,14 @@ const ITEMS_PER_PAGE = 2;
 // Calls fetchAll in model, gets the products an returns Product List Page in Index:
 exports.getIndex = (req, res, next) => {
 	const page = +req.query.page || 1;
-    // console.log(page);
-    // console.log("1");
-    let totalItems;
+	// console.log(page);
+	// console.log("1");
+	let totalItems;
 
-	Product.find()  // Static method from Mongoose used to first get count
+	Product.find() // Static method from Mongoose used to first get count
 		.countDocuments() // Gives back number of all products
 		.then((numProducts) => {
-            totalItems = numProducts; // Sets total number of products
+			totalItems = numProducts; // Sets total number of products
 			return Product.find() // Static method from Mongoose fetches items
 				.skip((page - 1) * ITEMS_PER_PAGE) // Skips itms of previous pages
 				.limit(ITEMS_PER_PAGE); // Limits fetched items to specified value
@@ -30,12 +30,12 @@ exports.getIndex = (req, res, next) => {
 				prods: products,
 				pageTitle: "Shop",
 				path: "/",
-                currentPage: page,
-                nextPage: page + 1,
-                previousPage: page - 1,
-                hasNextPage: page * ITEMS_PER_PAGE < totalItems,
-                hasPreviousPage: page > 1,
-                highestPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				currentPage: page,
+				nextPage: page + 1,
+				previousPage: page - 1,
+				hasNextPage: page * ITEMS_PER_PAGE < totalItems,
+				hasPreviousPage: page > 1,
+				highestPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
 			});
 		})
 		.catch((err) => {
@@ -47,13 +47,32 @@ exports.getIndex = (req, res, next) => {
 
 // Calls fetchAll in model, gets the products an returns Product List Page in Shop:
 exports.getProducts = (req, res, next) => {
-	Product.find()
+	const page = +req.query.page || 1;
+	// console.log(page);
+	// console.log("1");
+	let totalItems;
+
+	Product.find() // Static method from Mongoose used to first get count
+		.countDocuments() // Gives back number of all products
+		.then((numProducts) => {
+			totalItems = numProducts; // Sets total number of products
+			return Product.find() // Static method from Mongoose fetches items
+				.skip((page - 1) * ITEMS_PER_PAGE) // Skips itms of previous pages
+				.limit(ITEMS_PER_PAGE); // Limits fetched items to specified value
+		})
 		.then((products) => {
+			// console.log(products);
 			// Path seen from views folder defined in ejs
 			res.render("shop/product-list", {
 				prods: products,
 				pageTitle: "All Products",
 				path: "/products",
+				currentPage: page,
+				nextPage: page + 1,
+				previousPage: page - 1,
+				hasNextPage: page * ITEMS_PER_PAGE < totalItems,
+				hasPreviousPage: page > 1,
+				highestPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
 			});
 		})
 		.catch((err) => {
