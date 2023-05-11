@@ -222,28 +222,28 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 // Deleting a product:
-exports.postDeleteProduct = (req, res, next) => {
-	const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+	const prodId = req.params.productId; // Now extracted through async request param
 	Product.findById(prodId)
 		.then((product) => {
 			if (!product) {
 				return next(new Error("No product found!"));
 			}
-			fileHelper.deleteFile(product.imageUrl); // Param is filePath
-			return Product.deleteOne({ _id: prodId, userId: req.user._id });
+			fileHelper.deleteFile(product.imageUrl); // Param is filePath. Deletes image
+			return Product.deleteOne({ _id: prodId, userId: req.user._id }); // Deletes prodct in DB
 		})
 		.then((result) => {
 			Product.findById(prodId).then((product) => {
 				// My check if product was deleted
 				if (!product) {
 					console.log("Deleted Product!");
-					res.redirect("/admin/products");
+					res.status(200).json({ // JSON Response no pagee reload
+						message: "Product deleted successfully!",
+					});
 				}
 			});
 		})
 		.catch((err) => {
-			const error = new Error(err);
-			error.httpStatusCode = 500;
-			return next(error);
+			res.statuus(500).json({ message: "Deleting product failed!" }); // JSON Response no pagee reload
 		});
 };

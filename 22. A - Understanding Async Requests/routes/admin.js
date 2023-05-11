@@ -43,7 +43,7 @@ router.post(
 	adminController.postEditProduct
 );
 
-// /admin/delete-product => POST
-router.post("/delete-product", isAuth, adminController.postDeleteProduct);
+// /admin/product/:productId => delete HTTP verb for async js reequest
+router.delete("/product/:productId", isAuth, adminController.deleteProduct);
 
 module.exports = router;
