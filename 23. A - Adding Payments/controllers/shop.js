@@ -106,7 +106,7 @@ exports.postCart = (req, res, next) => {
 	const prodId = req.body.productId;
 	Product.findById(prodId) // Finds product in DB
 		.then((product) => {
-			return req.user.addToCart(product); // Calls method in user model.Prooduct  is needed there to update cart in users
+			return req.user.addToCart(product); // Calls method in user model. Product is needed there to update cart in users
 		})
 		.then((result) => {
 			// console.log(result);
@@ -116,7 +116,7 @@ exports.postCart = (req, res, next) => {
 
 // Gets all products in cart and renders cart page
 exports.getCart = (req, res, next) => {
-	console.log(req.user);
+	// console.log(req.user);
 	req.user
 		.populate("cart.items.productId")
 		.then((user) => {
@@ -150,6 +150,31 @@ exports.postCartDeleteProduct = (req, res, next) => {
 			return next(error);
 		});
 };
+
+// Getting Checkout Page when clicking on Order Now button in cart:
+exports.getCheckout = (req, res, next) => {
+	req.user
+    .populate("cart.items.productId")
+    .then((user) => {
+        console.log(user.cart.items);
+        let products = user.cart.items;
+        let total = 0;
+        products.forEach(p => {
+            total += p.quantity * p.productId.price;
+        })
+        res.render("shop/checkout", {
+            pageTitle: "Checkout",
+            path: "/checkout",
+            products: products,
+            totalSum: total.toFixed(2),
+        });
+    })
+    .catch((err) => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
+}
 
 // Creating an order:
 exports.postOrder = (req, res, next) => {
