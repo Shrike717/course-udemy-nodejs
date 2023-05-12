@@ -120,7 +120,7 @@ exports.getCart = (req, res, next) => {
 	req.user
 		.populate("cart.items.productId")
 		.then((user) => {
-			// console.log(user.cart.items);
+			console.log(user.cart.items);
 			let products = user.cart.items;
 			res.render("shop/cart", {
 				pageTitle: "Your Cart",
