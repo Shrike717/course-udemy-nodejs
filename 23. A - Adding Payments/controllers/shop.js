@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SKEY);
 
 const PDFDocument = require("pdfkit");
 
@@ -153,28 +155,102 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 // Getting Checkout Page when clicking on Order Now button in cart:
 exports.getCheckout = (req, res, next) => {
+	let products;
+	let total = 0;
 	req.user
-    .populate("cart.items.productId")
-    .then((user) => {
-        console.log(user.cart.items);
-        let products = user.cart.items;
-        let total = 0;
-        products.forEach(p => {
-            total += p.quantity * p.productId.price;
-        })
-        res.render("shop/checkout", {
-            pageTitle: "Checkout",
-            path: "/checkout",
-            products: products,
-            totalSum: total.toFixed(2),
-        });
-    })
-    .catch((err) => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
-    });
-}
+		.populate("cart.items.productId")
+		.then((user) => {
+			console.log(user.cart.items);
+			products = user.cart.items;
+
+			products.forEach((p) => {
+				total += +p.quantity * +p.productId.price;
+			});
+
+            // Old code Max video: Didn't work
+			// return stripe.checkout.sessions.create({
+			// 	payment_method_types: ["card"],
+			// 	line_items: products.map((p) => {
+			// 		return {
+			// 			name: p.productId.title,
+			// 			description: p.productId.description,
+			// 			price: p.productId.price * 100, // Price in cents
+			// 			currency: "eur",
+			// 			quantity: p.quantity,
+			// 		};
+			// 	}),
+            //     success_url: req.protocol + "://" + req.get("host") + "/checkout/success",// => http://localhost:3000
+            //     cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
+			// });
+
+            return stripe.checkout.sessions.create({
+                line_items: products.map(p => {
+                    return  {
+                        price_data: {
+                          currency: "eur",
+                          unit_amount: parseInt(Math.ceil(p.productId.price * 100)),
+                          product_data: {
+                            name: p.productId.title,
+                            description: p.productId.description,
+                          },
+                        },
+                        quantity: p.quantity,
+                      }
+                    }),
+                    mode: "payment",
+                    success_url: req.protocol + "://" + req.get("host") + "/checkout/success",// => http://localhost:3000,
+                    cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
+              });
+		})
+		.then((session) => {
+			res.render("shop/checkout", {
+				pageTitle: "Checkout",
+				path: "/checkout",
+				products: products,
+				totalSum: total.toFixed(2),
+				sessionId: session.id,
+			});
+		})
+		.catch((err) => {
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
+};
+
+// Creating an order after successfully being redirected from Stripe:
+exports.getCheckoutSuccess = (req, res, next) => {
+	req.user
+		.populate("cart.items.productId")
+		.then((user) => {
+			console.log(user.cart.items);
+			const products = user.cart.items.map((i) => {
+				return {
+					product: { ...i.productId._doc },
+					quantity: i.quantity,
+				};
+			});
+			const order = new Order({
+				products: products,
+				user: {
+					email: req.user.email,
+					userId: req.user,
+				},
+			});
+			return order.save();
+		})
+		.then((result) => {
+			return req.user.clearCart();
+		})
+		.then(() => {
+			res.redirect("/orders");
+		})
+		.catch((err) => {
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
+};
 
 // Creating an order:
 exports.postOrder = (req, res, next) => {
@@ -264,14 +340,14 @@ exports.getInvoice = (req, res, next) => {
 				pdfDoc
 					.fontSize(12)
 					.text(
-						`${prod.product.title} - ${prod.quantity} x $ ${prod.product.price}`
+						`${prod.product.title} - ${prod.quantity} x € ${prod.product.price}`
 					);
 			});
 			pdfDoc.fontSize(12).text("--------------------");
 			pdfDoc
 				.font("Helvetica-Bold")
 				.fontSize(12)
-				.text(`Total: $ ${totalPrice}`);
+				.text(`Total: € ${totalPrice.toFixed((2))}`);
 			pdfDoc.end();
 
 			// File served ny reading. Not best practice:

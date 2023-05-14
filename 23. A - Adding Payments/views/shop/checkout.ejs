@@ -17,5 +17,18 @@
             <div class="cart__item-sum">
                 <h2>Total: <%= totalSum %></h2>
             </div>
+            <div class="centered">
+                <button id="pay-btn" class="btn">Pay</button>
+                <script src="https://js.stripe.com/v3/"></script>
+                <script>
+                    let stripe = Stripe("pk_test_51N6xduDSKbpzD8o6z2Exoqly16DXjecGqO5Y68a9MrdGRRVxUQKCCzB5uyBr4i5q09tG9UxAiwBRl92S7vicv3sv00OgpnXeE2");
+                    let payBtn = document.getElementById("pay-btn");
+                    payBtn.addEventListener("click", () => {
+                        stripe.redirectToCheckout({
+                            sessionId: "<%= sessionId %>",
+                        })
+                    });
+                </script>
+            </div>
         </main>
         <%- include('../includes/end.ejs') %>
