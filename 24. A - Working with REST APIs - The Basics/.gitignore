@@ -5,5 +5,5 @@
 .env.test.local
 .env.production.local
 
-# local node_modules folder
+# local node_modules folder:
 node_modules
