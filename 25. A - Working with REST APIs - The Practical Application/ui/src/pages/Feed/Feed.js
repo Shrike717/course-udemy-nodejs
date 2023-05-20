@@ -109,18 +109,19 @@ class Feed extends Component {
 			editLoading: true,
 		});
 		// Set up data (with image!)
-		let url = "http://localhost:8080/feed/post";
+		let url = "http://localhost:8080/feed/post"; // Hitting createPost action in BE
 		let method = "POST";
 		if (this.state.editPost) {
 			url = "URL";
 		}
 
 		fetch(url, {
+            // Configuring request to Rest-Api with user data from input modal:
 			method: method,
             headers: {
                 "Content-Type": "application/json"
             },
-			body: JSON.stringify({
+			body: JSON.stringify({ // Converting JS to JSON to send body to BE
 				title: postData.title,
 				content: postData.content,
 			}),
@@ -129,11 +130,11 @@ class Feed extends Component {
 				if (res.status !== 200 && res.status !== 201) {
 					throw new Error("Creating or editing a post failed!");
 				}
-				return res.json();
+				return res.json(); // Extracting response body from JSON to JS
 			})
 			.then((resData) => {
                 console.log(resData);
-				const post = {
+				const post = { // Creating new / updated post with extracted data coming from BE
 					_id: resData.post._id,
 					title: resData.post.title,
 					content: resData.post.content,
