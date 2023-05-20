@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path"); // Needed to build path for serving the images folder statically
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -7,10 +8,13 @@ const feedRoutes = require("./routes/feed");
 
 const app = express();
 
-// Parsing incoming JSON data from request bodies (applicaton/json)
+// Middleware for parsing incoming JSON data from request bodies (applicaton/json)
 app.use(bodyParser.json());
 
-// Setting headers to avoid CORS error to every response before requests are routed further in our app
+// Middleware for serving the images folder statically:
+app.use("/images", express.static(path.join(__dirname, "images")));
+
+// Middleware for setting headers to avoid CORS error to every response before requests are routed further in our app
 app.use((req, res, next) => {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader(
@@ -25,6 +29,14 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
+
+// Middleware for central custom error handling:
+app.use((error, req, res, next) => {
+	console.log(error); // Logging it for Devs to see
+	const status = error.statusCode || 500; // Extracting our custom property statusCode we were setting before to an error object. Or 500
+	const message = error.message; // Extracting default property message (The messagge we passed  to the error constuctor before)
+	res.status(status).json({ message: message });
+});
 
 // Connecting to Mongo Db with Mongoose:
 mongoose
