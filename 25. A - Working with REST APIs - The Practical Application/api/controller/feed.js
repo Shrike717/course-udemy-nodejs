@@ -22,6 +22,7 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
 	// Errors the validator package might have gathered
 	const errors = validationResult(req);
+    console.log(req.body);
 	if (!errors.isEmpty()) {
 		const error = new Error(
 			"Validation failed! Entered data is incorrect."
@@ -29,6 +30,15 @@ exports.createPost = (req, res, next) => {
 		error.statusCode = 422;
 		throw error; // Synchronous code therefor throw
 	}
+    // Checking if incoming request has a file:
+    if (!req.file) {
+        const error = new Error("No image provided!");
+        error.statusCode = 422; // This is also a validation error
+        throw error;
+    }
+    // If there is a file imageUrl is extracted:
+    const imageUrl = req.file.path;
+
 	// Extracting payload from body
 	const title = req.body.title;
 	const content = req.body.content;
@@ -36,7 +46,7 @@ exports.createPost = (req, res, next) => {
 	// Create post in db
 	const post = new Post({
 		title: title,
-		imageUrl: "images/Book.jpg",
+		imageUrl: imageUrl,
 		content: content,
 		creator: {
 			name: "Daniel Bauer",
