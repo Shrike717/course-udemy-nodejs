@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
@@ -6,7 +9,8 @@ const Post = require("../models/post");
 exports.getPosts = (req, res, next) => {
 	Post.find()
 		.then((posts) => {
-			res.status(200).json({ // Sending response with json() method
+			res.status(200).json({
+				// Sending response with json() method
 				message: "Posts loaded successfully!",
 				posts: posts,
 			});
@@ -22,7 +26,7 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
 	// Errors the validator package might have gathered
 	const errors = validationResult(req);
-    console.log(req.body);
+	console.log(req);
 	if (!errors.isEmpty()) {
 		const error = new Error(
 			"Validation failed! Entered data is incorrect."
@@ -30,14 +34,14 @@ exports.createPost = (req, res, next) => {
 		error.statusCode = 422;
 		throw error; // Synchronous code therefor throw
 	}
-    // Checking if incoming request has a file:
-    if (!req.file) {
-        const error = new Error("No image provided!");
-        error.statusCode = 422; // This is also a validation error
-        throw error;
-    }
-    // If there is a file imageUrl is extracted:
-    const imageUrl = req.file.path;
+	// Checking if incoming request has a file:
+	if (!req.file) {
+		const error = new Error("No image provided!");
+		error.statusCode = 422; // This is also a validation error
+		throw error;
+	}
+	// If there is a file imageUrl is extracted:
+	const imageUrl = req.file.path;
 
 	// Extracting payload from body
 	const title = req.body.title;
@@ -56,7 +60,8 @@ exports.createPost = (req, res, next) => {
 	post.save()
 		.then((result) => {
 			console.log(result);
-			res.status(201).json({ // Sending response with json() method
+			res.status(201).json({
+				// Sending response with json() method
 				message: "Post created successfully!",
 				post: result, // result is the post coming back from the DB
 			});
@@ -90,5 +95,75 @@ exports.getPost = (req, res, next) => {
 			}
 			next(err); // Asynchronous code. Therefore forwarding err with next
 		});
-	Post;
+};
+
+// Edits a post:
+exports.updatePost = (req, res, next) => {
+	const postId = req.params.postId; // Extracting postId from URL
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const error = new Error(
+			"Validation failed! Entered data is incorrect."
+		);
+		error.statusCode = 422;
+		throw error; // Synchronous code therefor throw
+	}
+	// Extracting the content i want to update:
+	const title = req.body.title;
+	const content = req.body.content;
+	// Has 2 options
+	let imageUrl = req.body.image; // 1. imageUrl is part of incoming request as text. No new image file was added.
+	if (req.file) {
+		// 2. New file  was picked. req.file is set through multer
+		imageUrl = req.file.path; // New imageUrl
+	}
+	if (!imageUrl) {
+		// If imageUrl is still undefined throw error
+		const error = new Error("No file picked!");
+		res.statusCode = 422;
+		throw error;
+	}
+	// If i reach this point i have valid data and now i can update post in DB:
+	Post.findById(postId)
+		.then((post) => {
+			if (!post) {
+				const error = new Error("No such post found!");
+				error.statusCode = 404; // Sth. was not found therefore 404
+				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
+			}
+			// Checking if there was a new image to then delete the  old image:
+			if (imageUrl !== post.imageUrl) {
+                // Passing the old imageUrl
+				clearImage(post.imageUrl);
+			}
+			// Setting post properties to the exracted updated values.
+			post.title = title;
+			post.imageUrl = imageUrl;
+			post.content = content;
+			// And saving it back to the DB. Overwriting old post but keeping old Id::
+			return post.save();
+		})
+		// Then getting back result of the above operation
+		.then((result) => {
+			// Returning successs messsage and updated post from DB
+			res.status(200).json({
+				message: "Post updated succssfully!",
+				post: result,
+			});
+		})
+		.catch((err) => {
+			console.log(err);
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err); // Asynchronous code. Therefore forwarding err with next
+		});
+};
+
+// Helper function to delete old mage when post was pdated with a new image:
+const clearImage = (filePath) => {
+	// First constructing filePath to old image:
+	filePath = path.join(__dirname, "..", filePath);
+	// Then deleting old image:
+	fs.unlink(filePath, (err) => console.log(err));
 };
