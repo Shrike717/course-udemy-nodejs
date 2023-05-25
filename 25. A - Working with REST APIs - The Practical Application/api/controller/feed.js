@@ -133,7 +133,7 @@ exports.updatePost = (req, res, next) => {
 			}
 			// Checking if there was a new image to then delete the  old image:
 			if (imageUrl !== post.imageUrl) {
-                // Passing the old imageUrl
+				// Passing the old imageUrl
 				clearImage(post.imageUrl);
 			}
 			// Setting post properties to the exracted updated values.
@@ -151,6 +151,37 @@ exports.updatePost = (req, res, next) => {
 				post: result,
 			});
 		})
+		.catch((err) => {
+			console.log(err);
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err); // Asynchronous code. Therefore forwarding err with next
+		});
+};
+
+// Deleting a post:
+exports.deletePost = (req, res, next) => {
+	const postId = req.params.postId;
+	Post.findById(postId)
+		.then((post) => {
+			if (!post) {
+				const error = new Error("No such post found!");
+				error.statusCode = 404; // Sth. was not found therefore 404
+				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
+			}
+			// Checkng for user later
+
+			clearImage(post.imageUrl);
+
+			return Post.findByIdAndDelete(postId);
+		})
+		.then((result) => {
+            console.log(result);
+            res.status(200).json({
+                message: "Post successfully deleted!"
+            })
+        })
 		.catch((err) => {
 			console.log(err);
 			if (!err.statusCode) {
