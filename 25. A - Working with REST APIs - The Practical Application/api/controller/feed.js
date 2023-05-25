@@ -7,12 +7,23 @@ const { validationResult } = require("express-validator");
 const Post = require("../models/post");
 
 exports.getPosts = (req, res, next) => {
+	const currentPage = req.query.page || 1; // Extracting current page coming from FE
+	const perPage = 2; // Hardcoded. Same as in FE
+	let totalItems; // Determins how many items are in the DB
 	Post.find()
+		.countDocuments() // First countng all posts
+		.then((count) => {
+			totalItems = count;
+			return Post.find() // And then loading it
+				.skip((currentPage - 1) * perPage) // Skips items from previous page when loading
+				.limit(perPage); // And limits the amount of loaded itmes
+		})
 		.then((posts) => {
 			res.status(200).json({
 				// Sending response with json() method
 				message: "Posts loaded successfully!",
 				posts: posts,
+                totalItems: totalItems,
 			});
 		})
 		.catch((err) => {
@@ -177,11 +188,11 @@ exports.deletePost = (req, res, next) => {
 			return Post.findByIdAndDelete(postId);
 		})
 		.then((result) => {
-            console.log(result);
-            res.status(200).json({
-                message: "Post successfully deleted!"
-            })
-        })
+			console.log(result);
+			res.status(200).json({
+				message: "Post successfully deleted!",
+			});
+		})
 		.catch((err) => {
 			console.log(err);
 			if (!err.statusCode) {

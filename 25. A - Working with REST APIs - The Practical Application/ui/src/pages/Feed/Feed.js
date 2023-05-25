@@ -39,10 +39,11 @@ class Feed extends Component {
 	}
 
 	loadPosts = (direction) => {
+        console.log(direction);
 		if (direction) {
 			this.setState({ postsLoading: true, posts: [] });
 		}
-		let page = this.state.postPage;
+		let page = this.state.postPage; // Current page. Default 1. Gets incremented and decremented
 		if (direction === "next") {
 			page++;
 			this.setState({ postPage: page });
@@ -51,7 +52,7 @@ class Feed extends Component {
 			page--;
 			this.setState({ postPage: page });
 		}
-		fetch("http://localhost:8080/feed/posts") // Endpoint to fetch all posts
+		fetch("http://localhost:8080/feed/posts?page=" + page) // Endpoint to fetch all posts with query for pagination
 			.then((res) => {
 				if (res.status !== 200) {
 					throw new Error("Failed to fetch posts.");
@@ -156,7 +157,7 @@ class Feed extends Component {
 							(p) => p._id === prevState.editPost._id
 						);
 						updatedPosts[postIndex] = post;
-					} else if (prevState.posts.length < 10) {
+					} else if (prevState.posts.length < 2) {
 						updatedPosts = prevState.posts.concat(post);
 					}
 					return {
