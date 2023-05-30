@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 
@@ -55,7 +56,9 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Forwarding requests with prefixes to the controllers
 app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 // Middleware for central custom error handling:
 app.use((error, req, res, next) => {
