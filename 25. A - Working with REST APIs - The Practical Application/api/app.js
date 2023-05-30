@@ -65,7 +65,8 @@ app.use((error, req, res, next) => {
 	console.log(error); // Logging it for Devs to see
 	const status = error.statusCode || 500; // Extracting our custom property statusCode we were setting before to an error object. Or 500
 	const message = error.message; // Extracting default property message (The messagge we passed  to the error constuctor before)
-	res.status(status).json({ message: message });
+    const data = error.data;
+	res.status(status).json({ message: message, data: data });
 });
 
 // Connecting to Mongo Db with Mongoose:
