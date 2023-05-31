@@ -37,7 +37,9 @@ const fileFilter = (req, file, cb) => {
 app.use(bodyParser.json());
 
 // Register Middleware to parse incomiing files with multer:
-app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single("image"));
+app.use(
+	multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 
 // Middleware for serving the images folder statically:
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -56,7 +58,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Forwarding requests with prefixes to the controllers
+// Forwarding requests with prefixes to the routers
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
@@ -65,7 +67,7 @@ app.use((error, req, res, next) => {
 	console.log(error); // Logging it for Devs to see
 	const status = error.statusCode || 500; // Extracting our custom property statusCode we were setting before to an error object. Or 500
 	const message = error.message; // Extracting default property message (The messagge we passed  to the error constuctor before)
-    const data = error.data;
+	const data = error.data;
 	res.status(status).json({ message: message, data: data });
 });
 
@@ -73,7 +75,7 @@ app.use((error, req, res, next) => {
 mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
-		app.listen(8080);
+		app.listen(process.env.PORT);
 	})
 	.catch((err) => {
 		console.log(err);
