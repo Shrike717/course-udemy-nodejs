@@ -2,7 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 
 const authController = require("../controller/auth");
-const User = require("../models/user"); // Needed to check if useer email alrady exsists in DB
+const User = require("../models/user"); // Needed to check if user email alrady exists in DB
 
 const router = express.Router(); // Creating the router
 
