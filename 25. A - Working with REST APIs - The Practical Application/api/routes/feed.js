@@ -3,11 +3,12 @@ const express = require("express");
 const { body } = require("express-validator");
 
 const feedController = require("../controller/feed");
+const isAuth = require("../middleware/is-auth"); // Middleware to check JWT token
 
 const router = express.Router(); // Creating the router
 
 // GET /feed/posts will be handled. There is a pre-filter "/feed" in app.js
-router.get("/posts", feedController.getPosts);
+router.get("/posts", isAuth, feedController.getPosts);
 
 // POST /feed/post
 router.post(
