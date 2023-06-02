@@ -124,7 +124,7 @@ class Feed extends Component {
 		this.setState({
 			editLoading: true,
 		});
-		// Set up data (with image!) as JS form-data:
+		// Set up data (with image!) as JS form-data. Creates a multipart/form-data; headerr automatcally
 		const formData = new FormData();
 		formData.append("title", postData.title);
 		formData.append("content", postData.content);
