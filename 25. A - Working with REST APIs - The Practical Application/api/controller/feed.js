@@ -5,13 +5,14 @@ const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = (req, res, next) => {
 	const currentPage = req.query.page || 1; // Extracting current page coming from FE
 	const perPage = 2; // Hardcoded. Same as in FE
 	let totalItems; // Determins how many items are in the DB
 	Post.find()
-		.countDocuments() // First countng all posts
+		.countDocuments() // First counting all posts
 		.then((count) => {
 			totalItems = count;
 			return Post.find() // And then loading it
@@ -23,7 +24,7 @@ exports.getPosts = (req, res, next) => {
 				// Sending response with json() method
 				message: "Posts loaded successfully!",
 				posts: posts,
-                totalItems: totalItems,
+				totalItems: totalItems,
 			});
 		})
 		.catch((err) => {
@@ -37,7 +38,7 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
 	// Errors the validator package might have gathered
 	const errors = validationResult(req);
-	console.log(req);
+	// console.log(req);
 	if (!errors.isEmpty()) {
 		const error = new Error(
 			"Validation failed! Entered data is incorrect."
@@ -57,24 +58,32 @@ exports.createPost = (req, res, next) => {
 	// Extracting payload from body
 	const title = req.body.title;
 	const content = req.body.content;
+	let creator;
 
 	// Create post in db
 	const post = new Post({
 		title: title,
 		imageUrl: imageUrl,
 		content: content,
-		creator: {
-			name: "Daniel Bauer",
-		},
+		creator: req.userId, // This userId was set to request in is-auth Middleware
 	});
 	// It has to be saved to DB. Gives back promise like object:
 	post.save()
 		.then((result) => {
-			console.log(result);
+			// console.log(result);
+			return User.findById(req.userId); // We have to get actual user from DB
+		})
+		.then((user) => {
+			creator = user;
+			user.posts.push(post); // To push the post to the posts array. Mongoose extracts only the needed postId
+			return user.save(); // Saving user after updating it
+		})
+		.then((result) => {
 			res.status(201).json({
 				// Sending response with json() method
 				message: "Post created successfully!",
-				post: result, // result is the post coming back from the DB
+				post: post, // Sending back new post object created above
+				creator: { _id: creator._id, name: creator.name }, // And creator id and name
 			});
 		})
 		.catch((err) => {
