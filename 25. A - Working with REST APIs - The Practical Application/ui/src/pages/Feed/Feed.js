@@ -39,7 +39,7 @@ class Feed extends Component {
 	}
 
 	loadPosts = (direction) => {
-        // console.log(this.props.token);
+		// console.log(this.props.token);
 		if (direction) {
 			this.setState({ postsLoading: true, posts: [] });
 		}
@@ -53,10 +53,11 @@ class Feed extends Component {
 			this.setState({ postPage: page });
 		}
 		fetch("http://localhost:8080/feed/posts?page=" + page, {
-            headers: {
-                Authorization: "Bearer " + this.props.token
-            }
-        }) // Endpoint to fetch all posts with query for pagination
+			headers: {
+				// Header to append the JWT Token
+				Authorization: "Bearer " + this.props.token,
+			},
+		}) // Endpoint to fetch all posts with query for pagination
 			.then((res) => {
 				if (res.status !== 200) {
 					throw new Error("Failed to fetch posts.");
@@ -64,18 +65,21 @@ class Feed extends Component {
 				return res.json();
 			})
 			.then((resData) => {
-				this.setState({
-					posts: resData.posts.map(post => {
-                        return {
-                            ...post,
-                            imagePath: post.imageUrl
-                        };
-                    }),
-					totalPosts: resData.totalItems,
-					postsLoading: false,
-				}, () => {
-                    console.log(this.state.posts)
-                });
+				this.setState(
+					{
+						posts: resData.posts.map((post) => {
+							return {
+								...post,
+								imagePath: post.imageUrl,
+							};
+						}),
+						totalPosts: resData.totalItems,
+						postsLoading: false,
+					},
+					() => {
+						console.log(this.state.posts);
+					}
+				);
 			})
 			.catch(this.catchError);
 	};
@@ -130,12 +134,16 @@ class Feed extends Component {
 		let method = "POST";
 		if (this.state.editPost) {
 			url = "http://localhost:8080/feed/post/" + this.state.editPost._id; // Hitting postUpdate action in BE
-            method = "PUT";
+			method = "PUT";
 		}
 
 		fetch(url, {
 			// Configuring request to Rest-Api with user data from input modal:
 			method: method,
+			headers: {
+				// Header to append the JWT Token
+				Authorization: "Bearer " + this.props.token,
+			},
 			body: formData,
 		})
 			.then((res) => {
@@ -190,8 +198,12 @@ class Feed extends Component {
 	deletePostHandler = (postId) => {
 		this.setState({ postsLoading: true });
 		fetch("http://localhost:8080/feed/post/" + postId, {
-            method: "DELETE"
-        })
+			method: "DELETE",
+			headers: {
+				// Header to append the JWT Token
+				Authorization: "Bearer " + this.props.token,
+			},
+		})
 			.then((res) => {
 				if (res.status !== 200 && res.status !== 201) {
 					throw new Error("Deleting a post failed!");
