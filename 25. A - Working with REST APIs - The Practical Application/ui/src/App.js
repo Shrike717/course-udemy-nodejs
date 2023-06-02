@@ -20,6 +20,7 @@ class App extends Component {
 		isAuth: false,
 		token: null,
 		userId: null,
+        userName: null,
 		authLoading: false,
 		error: null,
 	};
@@ -84,12 +85,12 @@ class App extends Component {
 				return res.json();
 			})
 			.then((resData) => {
-				console.log(resData);
 				this.setState({
 					isAuth: true,
 					token: resData.token,
 					authLoading: false,
 					userId: resData.userId,
+                    userName: resData.name
 				});
 				localStorage.setItem("token", resData.token);
 				localStorage.setItem("userId", resData.userId);
@@ -140,6 +141,7 @@ class App extends Component {
 			.then((resData) => {
 				console.log(resData);
 				this.setState({ isAuth: false, authLoading: false });
+                console.log(this.state.userName);
 				this.props.history.replace("/");
 			})
 			.catch((err) => {
@@ -236,6 +238,7 @@ class App extends Component {
 								)}
 								onLogout={this.logoutHandler}
 								isAuth={this.state.isAuth}
+                                userName={this.state.userName}
 							/>
 						</Toolbar>
 					}

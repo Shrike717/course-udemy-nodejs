@@ -79,6 +79,7 @@ exports.postLogin = (req, res, next) => {
 			res.status(200).json({
 				token: token,
 				userId: loadedUser._id.toString(),
+                name: loadedUser.name,
 			});
 		})
 		.catch((err) => {

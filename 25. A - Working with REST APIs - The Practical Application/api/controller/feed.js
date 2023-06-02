@@ -151,6 +151,12 @@ exports.updatePost = (req, res, next) => {
 				error.statusCode = 404; // Sth. was not found therefore 404
 				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
 			}
+			// Checking if post is equal to owner by user comparing the user ids:
+			if (post.creator.toString() !== req.userId) {
+				const error = new Error("Not authorized!");
+				error.statusCode = 403; // Forbidden. Access to ressource blocked
+				throw error;
+			}
 			// Checking if there was a new image to then delete the  old image:
 			if (imageUrl !== post.imageUrl) {
 				// Passing the old imageUrl
@@ -190,7 +196,12 @@ exports.deletePost = (req, res, next) => {
 				error.statusCode = 404; // Sth. was not found therefore 404
 				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
 			}
-			// Checkng for user later
+			// Checking if post is equal to owner by user comparing the user ids:
+			if (post.creator.toString() !== req.userId) {
+				const error = new Error("Not authorized!");
+				error.statusCode = 403; // Forbidden. Access to ressource blocked
+				throw error;
+			}
 
 			clearImage(post.imageUrl);
 

@@ -77,7 +77,7 @@ class Feed extends Component {
 						postsLoading: false,
 					},
 					() => {
-						console.log(this.state.posts);
+						// console.log(this.state.posts);
 					}
 				);
 			})
