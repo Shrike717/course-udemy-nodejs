@@ -39,3 +39,7 @@
 .navigation-item button:active {
   color: #fab83f;
 }
+
+.navigation-item__user {
+    color:cyan
+}

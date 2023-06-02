@@ -52,7 +52,7 @@ class FeedEdit extends Component {
 				image: {
 					...prevState.postForm.image,
 					value: this.props.selectedPost.imagePath, // Max code works
-					// value: this.props.selectedPost.imageUrl, // My code works exacctly he same :-)
+					// value: this.props.selectedPost.imageUrl, // My code works exactly he same :-)
 					valid: true,
 				},
 				content: {
