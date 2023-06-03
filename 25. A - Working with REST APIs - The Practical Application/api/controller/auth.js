@@ -47,6 +47,7 @@ exports.postLogin = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	let loadedUser;
+    let defaultStatus;
 	User.findOne({ email: email })
 		.then((user) => {
 			if (!user) {
@@ -79,11 +80,65 @@ exports.postLogin = (req, res, next) => {
 			res.status(200).json({
 				token: token,
 				userId: loadedUser._id.toString(),
-                name: loadedUser.name,
+				name: loadedUser.name,
 			});
 		})
 		.catch((err) => {
 			// Error here means: Network error or failing wth DB
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err); // Asynchronous code. Therefore forwarding err with next
+		});
+};
+
+exports.getUserStatus = (req, res, next) => {
+	User.findById(req.userId)
+		.then((user) => {
+			// console.log(user);
+			if (!user) {
+				const error = new Error("Not authenticated!");
+				error.statusCode = 404;
+				throw error;
+			}
+			res.status(200).json({
+				status: user.status,
+			});
+		})
+		.catch((err) => {
+			// Error here means: Network error or failing wth DB
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err); // Asynchronous code. Therefore forwarding err with next
+		});
+};
+
+exports.patchUpdateUserStatus = (req, res, next) => {
+    	// Evaluating possible errors collected through validation:
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const error = new Error("Validation failed!");
+		error.statusCode = 422;
+		error.data = errors.array();
+		throw error;
+	}
+	const newStatus = req.body.status; // Extracting new status:
+    // console.log(req.body.status);
+	User.findById(req.userId)
+		.then((user) => {
+			if (!user) {
+				const error = new Error("Not authenticated!");
+				error.statusCode = 404;
+				throw error;
+			}
+			user.status = newStatus; // Setting new status
+			return user.save();
+		})
+		.then((result) => {
+			res.status(200).json({ message: "Status updated successfully!" });
+		})
+		.catch((err) => {
 			if (!err.statusCode) {
 				err.statusCode = 500;
 			}
