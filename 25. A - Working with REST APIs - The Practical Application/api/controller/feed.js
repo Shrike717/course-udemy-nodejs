@@ -38,7 +38,6 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
 	// Errors the validator package might have gathered
 	const errors = validationResult(req);
-	// console.log(req);
 	if (!errors.isEmpty()) {
 		const error = new Error(
 			"Validation failed! Entered data is incorrect."
@@ -208,7 +207,14 @@ exports.deletePost = (req, res, next) => {
 			return Post.findByIdAndDelete(postId);
 		})
 		.then((result) => {
-			console.log(result);
+			// console.log(result);
+			return User.findById(req.userId);  // Finding owner to clear postId from user object
+		})
+		.then((user) => {
+			user.posts.pull(postId); // Deleting the postId
+			return user.save();
+		})
+		.then((result) => {
 			res.status(200).json({
 				message: "Post successfully deleted!",
 			});
