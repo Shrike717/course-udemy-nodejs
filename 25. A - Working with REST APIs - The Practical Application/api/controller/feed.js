@@ -7,6 +7,8 @@ const { validationResult } = require("express-validator");
 const Post = require("../models/post");
 const User = require("../models/user");
 
+// Since Node 14.3 would be possible to use await on top level OUUTSIDE of a async await function
+
 exports.getPosts = async (req, res, next) => {
 	// async in front of function with async code
 	const currentPage = req.query.page || 1; // Extracting current page coming from FE
