@@ -7,32 +7,31 @@ const { validationResult } = require("express-validator");
 const Post = require("../models/post");
 const User = require("../models/user");
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
+	// async in front of function with async code
 	const currentPage = req.query.page || 1; // Extracting current page coming from FE
 	const perPage = 2; // Hardcoded. Same as in FE
 	let totalItems; // Determins how many items are in the DB
-	Post.find()
-		.countDocuments() // First counting all posts
-		.then((count) => {
-			totalItems = count;
-			return Post.find() // And then loading it
-				.skip((currentPage - 1) * perPage) // Skips items from previous page when loading
-				.limit(perPage); // And limits the amount of loaded itmes
-		})
-		.then((posts) => {
-			res.status(200).json({
-				// Sending response with json() method
-				message: "Posts loaded successfully!",
-				posts: posts,
-				totalItems: totalItems,
-			});
-		})
-		.catch((err) => {
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err); // Asynchronous code. Therefore forwarding err with next
+	try {
+		totalItems = await Post.find() // Saving result with await directly in variable
+			.countDocuments(); // First counting all posts
+
+		const posts = await Post.find() // And then loading it
+			.skip((currentPage - 1) * perPage) // Skips items from previous page when loading
+			.limit(perPage); // And limits the amount of loaded itmes
+
+		res.status(200).json({
+			// Sending response with json() method
+			message: "Posts loaded successfully!",
+			posts: posts,
+			totalItems: totalItems,
 		});
+	} catch (err) {
+		if (!err.statusCode) {
+			err.statusCode = 500;
+		}
+		next(err); // Asynchronous code. Therefore forwarding err with next
+	}
 };
 
 exports.createPost = (req, res, next) => {
@@ -208,7 +207,7 @@ exports.deletePost = (req, res, next) => {
 		})
 		.then((result) => {
 			// console.log(result);
-			return User.findById(req.userId);  // Finding owner to clear postId from user object
+			return User.findById(req.userId); // Finding owner to clear postId from user object
 		})
 		.then((user) => {
 			user.posts.pull(postId); // Deleting the postId
