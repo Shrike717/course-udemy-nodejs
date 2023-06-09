@@ -19,6 +19,7 @@ exports.getPosts = async (req, res, next) => {
 			.countDocuments(); // First counting all posts
 
 		const posts = await Post.find() // And then loading it
+			.populate("creator") // Adding the creator field (User Id) with populate to get user name from user object
 			.skip((currentPage - 1) * perPage) // Skips items from previous page when loading
 			.limit(perPage); // And limits the amount of loaded itmes
 
