@@ -37,7 +37,7 @@ exports.getPosts = async (req, res, next) => {
 	}
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
 	// Errors the validator package might have gathered
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -59,7 +59,6 @@ exports.createPost = (req, res, next) => {
 	// Extracting payload from body
 	const title = req.body.title;
 	const content = req.body.content;
-	let creator;
 
 	// Create post in db
 	const post = new Post({
@@ -68,58 +67,53 @@ exports.createPost = (req, res, next) => {
 		content: content,
 		creator: req.userId, // This userId was set to request in is-auth Middleware
 	});
-	// It has to be saved to DB. Gives back promise like object:
-	post.save()
-		.then((result) => {
-			// console.log(result);
-			return User.findById(req.userId); // We have to get actual user from DB
-		})
-		.then((user) => {
-			creator = user;
-			user.posts.push(post); // To push the post to the posts array. Mongoose extracts only the needed postId
-			return user.save(); // Saving user after updating it
-		})
-		.then((result) => {
-			res.status(201).json({
-				// Sending response with json() method
-				message: "Post created successfully!",
-				post: post, // Sending back new post object created above
-				creator: { _id: creator._id, name: creator.name }, // And creator id and name
-			});
-		})
-		.catch((err) => {
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err); // Asynchronous code. Therefore forwarding err with next
+	// It has to be saved to DB.
+	try {
+		await post.save();
+		// console.log(result);
+		const user = await User.findById(req.userId); // We have to get actual user from DB
+
+		user.posts.push(post); // To push the post to the posts array in user object. Mongoose extracts only the needed postId
+		await user.save(); // Saving user after updating it
+
+		res.status(201).json({
+			// Sending response with json() method
+			message: "Post created successfully!",
+			post: post, // Sending back new post object created above
+			creator: { _id: user._id, name: user.name }, // And user id and name
 		});
+	} catch (err) {
+		if (!err.statusCode) {
+			err.statusCode = 500;
+		}
+		next(err); // Asynchronous code. Therefore forwarding err with next
+	}
 };
 
 // Gets one single post:
-exports.getPost = (req, res, next) => {
+exports.getPost = async (req, res, next) => {
 	const postId = req.params.postId;
-	Post.findById(postId)
-		.then((post) => {
-			if (!post) {
-				const error = new Error("No such post found!");
-				error.statusCode = 404; // Sth. was not found therefore 404
-				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
-			}
-			res.status(200).json({
-				message: "Post loaded successfully!",
-				post: post, // result is the post coming back from the DB
-			});
-		})
-		.catch((err) => {
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err); // Asynchronous code. Therefore forwarding err with next
+	try {
+		const post = await Post.findById(postId);
+		if (!post) {
+			const error = new Error("No such post found!");
+			error.statusCode = 404; // Sth. was not found therefore 404
+			throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
+		}
+		res.status(200).json({
+			message: "Post loaded successfully!",
+			post: post, // result is the post coming back from the DB
 		});
+	} catch (err) {
+		if (!err.statusCode) {
+			err.statusCode = 500;
+		}
+		next(err); // Asynchronous code. Therefore forwarding err with next
+	}
 };
 
 // Edits a post:
-exports.updatePost = (req, res, next) => {
+exports.updatePost = async (req, res, next) => {
 	const postId = req.params.postId; // Extracting postId from URL
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -145,89 +139,84 @@ exports.updatePost = (req, res, next) => {
 		throw error;
 	}
 	// If i reach this point i have valid data and now i can update post in DB:
-	Post.findById(postId)
-		.then((post) => {
-			if (!post) {
-				const error = new Error("No such post found!");
-				error.statusCode = 404; // Sth. was not found therefore 404
-				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
-			}
-			// Checking if post is equal to owner by user comparing the user ids:
-			if (post.creator.toString() !== req.userId) {
-				const error = new Error("Not authorized!");
-				error.statusCode = 403; // Forbidden. Access to ressource blocked
-				throw error;
-			}
-			// Checking if there was a new image to then delete the  old image:
-			if (imageUrl !== post.imageUrl) {
-				// Passing the old imageUrl
-				clearImage(post.imageUrl);
-			}
-			// Setting post properties to the exracted updated values.
-			post.title = title;
-			post.imageUrl = imageUrl;
-			post.content = content;
-			// And saving it back to the DB. Overwriting old post but keeping old Id::
-			return post.save();
-		})
+	try {
+		const post = await Post.findById(postId);
+
+		if (!post) {
+			const error = new Error("No such post found!");
+			error.statusCode = 404; // Sth. was not found therefore 404
+			throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
+		}
+		// Checking if post is equal to owner by user comparing the user ids:
+		if (post.creator.toString() !== req.userId) {
+			const error = new Error("Not authorized!");
+			error.statusCode = 403; // Forbidden. Access to ressource blocked
+			throw error;
+		}
+		// Checking if there was a new image to then delete the old image:
+		if (imageUrl !== post.imageUrl) {
+			// Passing the old imageUrl
+			clearImage(post.imageUrl);
+		}
+		// Setting post properties to the exracted updated values.
+		post.title = title;
+		post.imageUrl = imageUrl;
+		post.content = content;
+		// And saving it back to the DB. Overwriting old post but keeping old Id::
+		const result = await post.save();
+
 		// Then getting back result of the above operation
-		.then((result) => {
-			// Returning successs messsage and updated post from DB
-			res.status(200).json({
-				message: "Post updated succssfully!",
-				post: result,
-			});
-		})
-		.catch((err) => {
-			console.log(err);
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err); // Asynchronous code. Therefore forwarding err with next
+
+		// Returning successs messsage and updated post from DB
+		res.status(200).json({
+			message: "Post updated succssfully!",
+			post: result,
 		});
+	} catch (err) {
+		console.log(err);
+		if (!err.statusCode) {
+			err.statusCode = 500;
+		}
+		next(err); // Asynchronous code. Therefore forwarding err with next
+	}
 };
 
 // Deleting a post:
-exports.deletePost = (req, res, next) => {
+exports.deletePost = async (req, res, next) => {
 	const postId = req.params.postId;
-	Post.findById(postId)
-		.then((post) => {
-			if (!post) {
-				const error = new Error("No such post found!");
-				error.statusCode = 404; // Sth. was not found therefore 404
-				throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
-			}
-			// Checking if post is equal to owner by user comparing the user ids:
-			if (post.creator.toString() !== req.userId) {
-				const error = new Error("Not authorized!");
-				error.statusCode = 403; // Forbidden. Access to ressource blocked
-				throw error;
-			}
+	try {
+		const post = await Post.findById(postId);
+		if (!post) {
+			const error = new Error("No such post found!");
+			error.statusCode = 404; // Sth. was not found therefore 404
+			throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
+		}
+		// Checking if post is equal to owner by user comparing the user ids:
+		if (post.creator.toString() !== req.userId) {
+			const error = new Error("Not authorized!");
+			error.statusCode = 403; // Forbidden. Access to ressource blocked
+			throw error;
+		}
 
-			clearImage(post.imageUrl);
+		clearImage(post.imageUrl);
 
-			return Post.findByIdAndDelete(postId);
-		})
-		.then((result) => {
-			// console.log(result);
-			return User.findById(req.userId); // Finding owner to clear postId from user object
-		})
-		.then((user) => {
-			user.posts.pull(postId); // Deleting the postId
-			return user.save();
-		})
-		.then((result) => {
-			res.status(200).json({
-				message: "Post successfully deleted!",
-			});
-		})
-		.catch((err) => {
-			console.log(err);
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err); // Asynchronous code. Therefore forwarding err with next
+		await Post.findByIdAndDelete(postId);
+
+		// console.log(result);
+		const user = await User.findById(req.userId); // Finding owner to clear postId from user object
+		user.posts.pull(postId); // Deleting the postId
+		await user.save();
+
+		res.status(200).json({
+			message: "Post successfully deleted!",
 		});
+	} catch (err) {
+		console.log(err);
+		if (!err.statusCode) {
+			err.statusCode = 500;
+		}
+		next(err); // Asynchronous code. Therefore forwarding err with next
+	}
 };
 
 // Helper function to delete old mage when post was pdated with a new image:
