@@ -8,7 +8,6 @@ import Paginator from "../../components/Paginator/Paginator";
 import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
-import post from "../../components/Feed/Post/Post";
 
 class Feed extends Component {
 	state = {
@@ -25,7 +24,7 @@ class Feed extends Component {
 	componentDidMount() {
 		fetch("http://localhost:8080/auth/status", {
 			method: "GET",
-            headers: {
+			headers: {
 				// Header to append the JWT Token
 				Authorization: "Bearer " + this.props.token,
 			},
@@ -93,16 +92,16 @@ class Feed extends Component {
 	statusUpdateHandler = (event) => {
 		event.preventDefault();
 		fetch("http://localhost:8080/auth/status", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
 				// Header to append the JWT Token
 				Authorization: "Bearer " + this.props.token,
 			},
-            body: JSON.stringify({
-                status: this.state.status
-            })
-        })
+			body: JSON.stringify({
+				status: this.state.status,
+			}),
+		})
 			.then((res) => {
 				if (res.status !== 200 && res.status !== 201) {
 					throw new Error("Can't update status!");
@@ -209,8 +208,8 @@ class Feed extends Component {
 
 	statusInputChangeHandler = (input, value) => {
 		this.setState({ status: value }, () => {
-            // console.log(value);
-        });
+			// console.log(value);
+		});
 	};
 
 	deletePostHandler = (postId) => {
