@@ -77,7 +77,7 @@ mongoose
 	.then((result) => {
 		const server = app.listen(process.env.PORT);
 
-		const io = require("socket.io")(
+		const io = require("./socket").init(
 			// Establish connection with websocket
 			server,
 
