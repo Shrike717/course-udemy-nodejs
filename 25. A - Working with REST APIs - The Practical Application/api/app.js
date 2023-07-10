@@ -76,10 +76,28 @@ mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
 		const server = app.listen(process.env.PORT);
-		const io = require("socket.io")(server); // Establishes socket connection.
-		io.on("connection", (socket) => {
-			console.log("Client connected");
-		});
+
+		const io = require("socket.io")(
+			// Establish connection with websocket
+			server,
+
+			{
+				// We have o set CORS headers
+				cors: {
+					origin: "*",
+
+					methods: ["GET", "POST", "PUT", "DELETE", "PUT"],
+				},
+			}
+		);
+
+		io.on(
+			"connection",
+
+			(socket) => {
+				console.log("client connected");
+			}
+		);
 	})
 	.catch((err) => {
 		console.log(err);
