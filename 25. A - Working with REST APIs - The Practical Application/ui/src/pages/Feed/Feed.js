@@ -45,7 +45,13 @@ class Feed extends Component {
 		this.loadPosts();
 
 		// Establishes connecion to BE server
-		openSocket("http://localhost:8080");
+		const socket = openSocket("http://localhost:8080");
+		// Listening to the event defined in h BE:
+		socket.on("posts", (data) => {
+			if (data.action === "create") {
+				this.addPost(data.post);
+			}
+		});
 	}
 
 	addPost = (post) => {
@@ -205,8 +211,8 @@ class Feed extends Component {
 							(p) => p._id === prevState.editPost._id
 						);
 						updatedPosts[postIndex] = post;
-					} else if (prevState.posts.length < 2) {
-						updatedPosts = prevState.posts.concat(post);
+						// } else if (prevState.posts.length < 2) { // This loads a new post 2 times with websocket
+						// 	updatedPosts = prevState.posts.concat(post);
 					}
 					return {
 						posts: updatedPosts,

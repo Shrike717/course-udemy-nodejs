@@ -95,7 +95,7 @@ mongoose
 			"connection",
 
 			(socket) => {
-				console.log("client connected");
+				console.log("Client connected");
 			}
 		);
 	})
