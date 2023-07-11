@@ -4,6 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
+const io = require("../socket");
 const Post = require("../models/post");
 const User = require("../models/user");
 
@@ -75,6 +76,9 @@ exports.createPost = async (req, res, next) => {
 
 		user.posts.push(post); // To push the post to the posts array in user object. Mongoose extracts only the needed postId
 		await user.save(); // Saving user after updating it
+
+		// Now informing all other users about this new post. emit = to all clients, broadcast: to all clients exept creator
+		io.getIo().emit("posts", { action: "create", post: post });
 
 		res.status(201).json({
 			// Sending response with json() method
