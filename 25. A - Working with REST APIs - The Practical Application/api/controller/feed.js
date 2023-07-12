@@ -221,6 +221,9 @@ exports.deletePost = async (req, res, next) => {
 		user.posts.pull(postId); // Deleting the postId
 		await user.save();
 
+		// Also delete posts with websocket at all connected clients:
+		io.getIo().emit("posts", { action: "delete", post: postId }); // Returning postId extracted above
+
 		res.status(200).json({
 			message: "Post successfully deleted!",
 		});
