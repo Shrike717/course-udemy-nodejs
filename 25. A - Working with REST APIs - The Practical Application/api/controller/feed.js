@@ -21,6 +21,7 @@ exports.getPosts = async (req, res, next) => {
 
 		const posts = await Post.find() // And then loading it
 			.populate("creator") // Adding the creator field (User Id) with populate to get user name from user object
+			.sort({ createdAt: -1 }) // Sorts posts in descending order
 			.skip((currentPage - 1) * perPage) // Skips items from previous page when loading
 			.limit(perPage); // And limits the amount of loaded itmes
 
