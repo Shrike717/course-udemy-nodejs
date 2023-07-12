@@ -78,7 +78,13 @@ exports.createPost = async (req, res, next) => {
 		await user.save(); // Saving user after updating it
 
 		// Now informing all other users about this new post. emit = to all clients, broadcast: to all clients exept creator
-		io.getIo().emit("posts", { action: "create", post: post });
+		io.getIo().emit("posts", {
+			action: "create",
+			post: {
+				...post._doc,
+				creator: { _id: req.userId, name: user.name },
+			},
+		});
 
 		res.status(201).json({
 			// Sending response with json() method
