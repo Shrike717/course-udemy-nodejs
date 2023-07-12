@@ -150,7 +150,7 @@ exports.updatePost = async (req, res, next) => {
 	}
 	// If i reach this point i have valid data and now i can update post in DB:
 	try {
-		const post = await Post.findById(postId);
+		const post = await Post.findById(postId).populate("creator"); // Populate takes cr.id, reach out to user collection and fetches all data from user
 
 		if (!post) {
 			const error = new Error("No such post found!");
@@ -158,7 +158,7 @@ exports.updatePost = async (req, res, next) => {
 			throw error; // CAUTION: Despite this being async code in .then we throw the error. It gets passed to the following catch and is forwarded with  next
 		}
 		// Checking if post is equal to owner by user comparing the user ids:
-		if (post.creator.toString() !== req.userId) {
+		if (post.creator._id.toString() !== req.userId) {
 			const error = new Error("Not authorized!");
 			error.statusCode = 403; // Forbidden. Access to ressource blocked
 			throw error;
@@ -176,6 +176,9 @@ exports.updatePost = async (req, res, next) => {
 		const result = await post.save();
 
 		// Then getting back result of the above operation
+
+		// Also update posts with websocket to all connected clients:
+		io.getIo().emit("posts", { action: "update", post: result });
 
 		// Returning successs messsage and updated post from DB
 		res.status(200).json({
