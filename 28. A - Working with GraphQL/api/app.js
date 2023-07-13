@@ -4,10 +4,9 @@ const bodyParser = require("body-parser");
 const multer = require("multer"); // Parser for images
 const mongoose = require("mongoose");
 require("dotenv").config();
-const { createHandler } = require("graphql-http/lib/use/express"); // Package used to parse incomings requests
 
-const graphqlSchema = require("./graphql/schema");
-const graphqlResolver = require("./graphql/resolvers");
+const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 
@@ -59,11 +58,9 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Middlleware for gaphql:
-app.all(
-	"/graphql",
-	createHandler({ schema: graphqlSchema, rootValue: graphqlResolver })
-);
+// Forwarding requests with prefixes to the routers
+app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 // Middleware for central custom error handling:
 app.use((error, req, res, next) => {
@@ -78,7 +75,29 @@ app.use((error, req, res, next) => {
 mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
-		app.listen(process.env.PORT);
+		const server = app.listen(process.env.PORT);
+
+		const io = require("./socket").init(
+			// Establish connection with websocket
+			server,
+
+			{
+				// We have o set CORS headers
+				cors: {
+					origin: "*",
+
+					methods: ["GET", "POST", "PUT", "DELETE", "PUT"],
+				},
+			}
+		);
+
+		io.on(
+			"connection",
+
+			(socket) => {
+				console.log("Client connected");
+			}
+		);
 	})
 	.catch((err) => {
 		console.log(err);
