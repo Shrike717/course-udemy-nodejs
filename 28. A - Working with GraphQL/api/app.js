@@ -60,9 +60,14 @@ app.use((req, res, next) => {
 });
 
 // Middlleware for gaphql:
-app.all(
-	"/graphql",
-	createHandler({ schema: graphqlSchema, rootValue: graphqlResolver })
+app.all("/graphql", (req, res) =>
+	createHandler({
+		schema: graphqlSchema,
+		// rootValue: graphqlResolver,
+		rootValue: {
+			createUser: (args) => graphqlResolver.createUser(args, req), // For use with graphql-http
+		},
+	})(req, res)
 );
 
 // Middleware for central custom error handling:
