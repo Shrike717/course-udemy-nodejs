@@ -46,7 +46,7 @@ module.exports = {
 		// And save it to DB:
 		const createdUser = await user.save();
 
-		// Then we have to reeturn what was defined n our mutation in the schema: The user object
+		// Then we have to return what was defined n our mutation in the schema: The user object
 		return { ...createdUser._doc, _id: createdUser._id.toString() }; // Returning only user data with _doc. And converting _id to string
 	},
 };

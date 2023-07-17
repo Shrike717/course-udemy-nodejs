@@ -56,6 +56,10 @@ app.use((req, res, next) => {
 		"Access-Control-Allow-Headers",
 		"Content-Type, Authorization"
 	);
+	// Checks if request method is OPIONS and then returns OK status 200 immediately not hitting next afterwards
+	if (req.method === "OPTIONS") {
+		return res.sendStatus(200);
+	}
 	next();
 });
 
@@ -67,11 +71,7 @@ app.all("/graphql", (req, res) =>
 		rootValue: {
 			createUser: (args) => graphqlResolver.createUser(args, req), // For use with graphql-http
 		},
-		// customFormatErrorFn: (error) => ({
-		// 	message: error.message || "An error occurred.",
-		// 	code: error.originalError.code || 500,
-		// 	data: error.originalError.data,
-		// }),
+		// This handles "custom" errors:
 		formatError: (err) => {
 			if (!err.originalError) {
 				return err;
