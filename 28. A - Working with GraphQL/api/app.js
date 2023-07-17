@@ -67,6 +67,27 @@ app.all("/graphql", (req, res) =>
 		rootValue: {
 			createUser: (args) => graphqlResolver.createUser(args, req), // For use with graphql-http
 		},
+		// customFormatErrorFn: (error) => ({
+		// 	message: error.message || "An error occurred.",
+		// 	code: error.originalError.code || 500,
+		// 	data: error.originalError.data,
+		// }),
+		formatError: (err) => {
+			if (!err.originalError) {
+				return err;
+			}
+			const data = err.originalError.data;
+			const message = err.message || "An error occurred.";
+			const code = err.originalError.code || 500;
+			return {
+				message: message,
+				// locations: err.locations,
+				path: err.path,
+				status: code,
+				data: data,
+				stack: err.stack ? err.stack.split("\n") : [],
+			};
+		},
 	})(req, res)
 );
 
