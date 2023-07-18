@@ -54,7 +54,7 @@ module.exports = {
 
 	login: async function ({ email, password }) {
 		// First find  the user. Email in DB should match incoming email
-		const user = await user.findOne({ email: email });
+		const user = await User.findOne({ email: email });
 		// If there is no user:
 		if (!user) {
 			const error = new Error("Could not find user!");
@@ -71,7 +71,7 @@ module.exports = {
 		}
 		// If we pass to here we have correct credentials. Now creating token:
 		// 1. arg: What is included. 2. arg: Secret. 3. arg: Expiration period
-		jwt.sign(
+		const token = jwt.sign(
 			{
 				userId: user._id.toString(),
 				email: user.email,

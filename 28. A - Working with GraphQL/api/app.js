@@ -70,6 +70,14 @@ app.all("/graphql", (req, res) =>
 		// rootValue: graphqlResolver,
 		rootValue: {
 			createUser: (args) => graphqlResolver.createUser(args, req), // For use with graphql-http
+			login: (args) => graphqlResolver.login(args, req),
+			// createPost: (args) => graphqlResolver.createPost(args, req),
+			// posts: (args) => graphqlResolver.posts(args, req),
+			// post: (args) => graphqlResolver.post(args, req),
+			// updatePost: (args) => graphqlResolver.updatePost(args, req),
+			// deletePost: (args) => graphqlResolver.deletePost(args, req),
+			// user: (args) => graphqlResolver.user(args, req),
+			// updateStatus: (args) => graphqlResolver.updateStatus(args, req),
 		},
 		// This handles "custom" errors:
 		formatError: (err) => {
@@ -105,6 +113,9 @@ mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
 		app.listen(process.env.PORT);
+		console.log(
+			`Server running on port: ${process.env.PORT} -----------------------------------------`
+		);
 	})
 	.catch((err) => {
 		console.log(err);
