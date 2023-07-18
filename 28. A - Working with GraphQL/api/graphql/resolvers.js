@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const User = require("../models/user");
 
@@ -48,5 +50,36 @@ module.exports = {
 
 		// Then we have to return what was defined n our mutation in the schema: The user object
 		return { ...createdUser._doc, _id: createdUser._id.toString() }; // Returning only user data with _doc. And converting _id to string
+	},
+
+	login: async function ({ email, password }) {
+		// First find  the user. Email in DB should match incoming email
+		const user = await user.findOne({ email: email });
+		// If there is no user:
+		if (!user) {
+			const error = new Error("Could not find user!");
+			error.code = 401; // User could not authenticate
+			throw error;
+		}
+		// If we pass to here we have a user. Now checking password. Incomingg pw vs pw from DB
+		const isEqual = await bcrypt.compare(password, user.password);
+		// If its not equal user entered wrong pw:
+		if (!isEqual) {
+			const error = new Error("Wrong password!");
+			error.code = 401; // User could not authenticate
+			throw error;
+		}
+		// If we pass to here we have correct credentials. Now creating token:
+		// 1. arg: What is included. 2. arg: Secret. 3. arg: Expiration period
+		jwt.sign(
+			{
+				userId: user._id.toString(),
+				email: user.email,
+			},
+			process.env.JWT_SECRET,
+			{ expiresIn: "1h" }
+		);
+		// Now we have to return what was needed in the login query in the schema in AuthData:
+		return { token: token, userId: user._id.toString() };
 	},
 };
