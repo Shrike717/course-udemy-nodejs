@@ -85,16 +85,23 @@ module.exports = {
 	},
 
 	createPost: async function ({ postInput }, req) {
+		// Checking if user is authenticated:
+		if (!req.isAuth) {
+			const error = new Error("User is not authenticated.");
+			error.code = 401;
+			throw error;
+		}
+
 		// Validation:
 		const errors = [];
-		// Ceecking title:
+		// Checking title:
 		if (
 			validator.isEmpty(postInput.title) ||
 			!validator.isLength(postInput.title, { min: 5 })
 		) {
 			errors.push("Title is invalid.");
 		}
-		// Ceecking content:
+		// Checking content:
 		if (
 			validator.isEmpty(postInput.content) ||
 			!validator.isLength(postInput.content, { min: 5 })
@@ -107,18 +114,30 @@ module.exports = {
 			error.code = 422;
 			throw error;
 		}
+
+		// Getting authenticated user from DB:
+		const user = await User.findById(req.userId);
+		// Check if there is a user:
+		if (!user) {
+			const error = new Error("No user found!");
+			error.code = 401;
+			throw error;
+		}
+
 		// Now we have valid data and can create a post:
 		const post = new Post({
 			title: postInput.title,
 			content: postInput.content,
 			imageUrl: postInput.imageUrl,
+			creator: user,
 		});
 		const createdPost = await post.save();
 		// Add post to users posts array
+		user.posts.push(createdPost);
 		return {
 			...createdPost._doc,
-			_id: createdPost._id.toString(),
-			createdAt: createdPost.createdAt.toISOString(),
+			_id: createdPost._id.toString(), // Has to be string not MG Objct Id
+			createdAt: createdPost.createdAt.toISOString(), // GQ can't read date. Therefore has to be string
 			updatedAt: createdPost.updatedAt.toISOString(),
 		};
 	},

@@ -8,6 +8,7 @@ const { createHandler } = require("graphql-http/lib/use/express"); // Package us
 
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
+const auth = require("./middleware/auth");
 
 const app = express();
 
@@ -62,6 +63,9 @@ app.use((req, res, next) => {
 	}
 	next();
 });
+
+// Middleware to check if  user is authenticated:
+app.use(auth);
 
 // Middlleware for gaphql:
 app.all("/graphql", (req, res) =>
