@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const User = require("../models/user");
+const Post = require("../models/post");
 
 // A resolver gives back the data. Like controller in REST
 module.exports = {
@@ -81,5 +82,44 @@ module.exports = {
 		);
 		// Now we have to return what was needed in the login query in the schema in AuthData:
 		return { token: token, userId: user._id.toString() };
+	},
+
+	createPost: async function ({ postInput }, req) {
+		// Validation:
+		const errors = [];
+		// Ceecking title:
+		if (
+			validator.isEmpty(postInput.title) ||
+			!validator.isLength(postInput.title, { min: 5 })
+		) {
+			errors.push("Title is invalid.");
+		}
+		// Ceecking content:
+		if (
+			validator.isEmpty(postInput.content) ||
+			!validator.isLength(postInput.content, { min: 5 })
+		) {
+			errors.push("Content is invalid.");
+		}
+		if (errors.length > 0) {
+			const error = new Error("Invalid input!");
+			error.data = errors;
+			error.code = 422;
+			throw error;
+		}
+		// Now we have valid data and can create a post:
+		const post = new Post({
+			title: postInput.title,
+			content: postInput.content,
+			imageUrl: postInput.imageUrl,
+		});
+		const createdPost = await post.save();
+		// Add post to users posts array
+		return {
+			...createdPost._doc,
+			_id: createdPost._id.toString(),
+			createdAt: createdPost.createdAt.toISOString(),
+			updatedAt: createdPost.updatedAt.toISOString(),
+		};
 	},
 };
