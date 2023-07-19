@@ -71,7 +71,7 @@ app.all("/graphql", (req, res) =>
 		rootValue: {
 			createUser: (args) => graphqlResolver.createUser(args, req), // For use with graphql-http
 			login: (args) => graphqlResolver.login(args, req),
-			// createPost: (args) => graphqlResolver.createPost(args, req),
+			createPost: (args) => graphqlResolver.createPost(args, req),
 			// posts: (args) => graphqlResolver.posts(args, req),
 			// post: (args) => graphqlResolver.post(args, req),
 			// updatePost: (args) => graphqlResolver.updatePost(args, req),
