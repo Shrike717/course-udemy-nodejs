@@ -134,6 +134,8 @@ module.exports = {
 		const createdPost = await post.save();
 		// Add post to users posts array
 		user.posts.push(createdPost);
+		await user.save();
+
 		return {
 			...createdPost._doc,
 			_id: createdPost._id.toString(), // Has to be string not MG Objct Id

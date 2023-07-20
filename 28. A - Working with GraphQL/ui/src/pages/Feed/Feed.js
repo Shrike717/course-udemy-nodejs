@@ -240,11 +240,11 @@ class Feed extends Component {
 				}
 				const post = {
 					// Creating new / updated post with extracted data coming from BE
-					_id: resData.post._id,
-					title: resData.post.title,
-					content: resData.post.content,
-					creator: resData.post.creator,
-					createdAt: resData.post.createdAt,
+					_id: resData.data.createPost._id,
+					title: resData.data.createPost.title,
+					content: resData.data.createPost.content,
+					creator: resData.data.createPost.creator,
+					createdAt: resData.data.createPost.createdAt,
 				};
 				this.setState((prevState) => {
 					// let updatedPosts = [...prevState.posts];
