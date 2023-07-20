@@ -193,30 +193,51 @@ class Feed extends Component {
 		formData.append("content", postData.content);
 		formData.append("image", postData.image);
 
-		let url = "http://localhost:8080/feed/post"; // Hitting createPost action in BE
-		let method = "POST";
-		if (this.state.editPost) {
-			url = "http://localhost:8080/feed/post/" + this.state.editPost._id; // Hitting postUpdate action in BE
-			method = "PUT";
-		}
+		let graphqlQuery = {
+			query: `
+                mutation {
+                    createPost(
+                        postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "Some url"}
+                    ) {
+                        _id
+                        title
+                        content
+                        imageUrl
+                        creator {
+                            name
+                        }
+                        createdAt
+                        updatedAt
+                    }
+                }
+            `,
+		};
 
-		fetch(url, {
-			// Configuring request to Rest-Api with user data from input modal:
-			method: method,
+		fetch("http://localhost:8080/graphql", {
+			// Configuring request to GQ with user data from input modal:
+			method: "POST",
 			headers: {
 				// Header to append the JWT Token
 				Authorization: "Bearer " + this.props.token,
+				"Content-Type": "application/json",
 			},
-			body: formData,
+			body: JSON.stringify(graphqlQuery),
 		})
 			.then((res) => {
-				if (res.status !== 200 && res.status !== 201) {
-					throw new Error("Creating or editing a post failed!");
-				}
 				return res.json(); // Extracting response body from JSON to JS
 			})
 			.then((resData) => {
 				console.log(resData);
+				// If there are errors in the errors array then gget first error and its status
+				if (resData.errors && resData.errors[0].status === 422) {
+					throw new Error(
+						"Validation failed. Make sure the email address isn't used yet!"
+					);
+				}
+				// If there are other errors throw new error
+				if (resData.errors) {
+					throw new Error("User login failed");
+				}
 				const post = {
 					// Creating new / updated post with extracted data coming from BE
 					_id: resData.post._id,
