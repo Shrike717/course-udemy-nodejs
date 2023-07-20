@@ -143,4 +143,29 @@ module.exports = {
 			updatedAt: createdPost.updatedAt.toISOString(),
 		};
 	},
+	getPosts: async function (args, req) {
+		// Checking if user is authenticated:
+		if (!req.isAuth) {
+			const error = new Error("User is not authenticated.");
+			error.code = 401;
+			throw error;
+		}
+		const totalPosts = await Post.find().countDocuments();
+		const posts = await Post.find()
+			.sort({ createdAt: -1 })
+			.populate("creator");
+
+		// Now returning the object as defined in the schema under postData
+		return {
+			posts: posts.map((post) => {
+				return {
+					...post._doc,
+					_id: post._id.toString(), // Transformation: GQ doesn't know MG ID Object
+					createdAt: post.createdAt.toISOString(), // Transformation: GQ doesn't know Date Object
+					updatedAt: post.updatedAt.toISOString(),
+				};
+			}),
+			totalPosts: totalPosts,
+		};
+	},
 };
