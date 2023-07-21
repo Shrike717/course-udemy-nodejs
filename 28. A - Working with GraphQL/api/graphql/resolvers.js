@@ -143,16 +143,22 @@ module.exports = {
 			updatedAt: createdPost.updatedAt.toISOString(),
 		};
 	},
-	getPosts: async function (args, req) {
+	getPosts: async function ({ page }, req) {
 		// Checking if user is authenticated:
 		if (!req.isAuth) {
 			const error = new Error("User is not authenticated.");
 			error.code = 401;
 			throw error;
 		}
+		if (!page) {
+			page = 1;
+		}
+		const perPage = 2; // Items shown per page hardcoded
 		const totalPosts = await Post.find().countDocuments();
 		const posts = await Post.find()
 			.sort({ createdAt: -1 })
+			.skip((page - 1) * perPage) // If i'm on page 2: 2-1 = 1 -> *2 = 2. The 2 items from page 1 will be skipped
+			.limit(perPage) // Only 2 items will be fetched
 			.populate("creator");
 
 		// Now returning the object as defined in the schema under postData

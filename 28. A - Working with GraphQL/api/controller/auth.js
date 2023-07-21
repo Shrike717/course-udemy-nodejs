@@ -93,6 +93,7 @@ exports.postLogin = async (req, res, next) => {
 };
 
 exports.getUserStatus = async (req, res, next) => {
+	console.log(req);
 	try {
 		const user = await User.findById(req.userId);
 
