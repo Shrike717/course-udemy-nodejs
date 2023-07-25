@@ -160,7 +160,6 @@ module.exports = {
 			.skip((page - 1) * perPage) // If i'm on page 2: 2-1 = 1 -> *2 = 2. The 2 items from page 1 will be skipped
 			.limit(perPage) // Only 2 items will be fetched
 			.populate("creator");
-		console.log(posts);
 
 		// Now returning the object as defined in the schema under postData
 		return {
@@ -173,6 +172,29 @@ module.exports = {
 				};
 			}),
 			totalPosts: totalPosts,
+		};
+	},
+
+	getPost: async function ({ id }, req) {
+		// Checking if user is authenticated:
+		if (!req.isAuth) {
+			const error = new Error("User is not authenticated.");
+			error.code = 401;
+			throw error;
+		}
+		// Then gettingg the post from DB:
+		const post = await Post.findById(id).populate("creator");
+		if (!post) {
+			const error = new Error("No post found!");
+			error.code = 404;
+			throw error;
+		}
+		// Then returning the post
+		return {
+			...post._doc,
+			id: post._id.toString(),
+			createdAt: post.createdAt.toISOString(),
+			updatedAt: post.updatedAt.toISOString(),
 		};
 	},
 };
