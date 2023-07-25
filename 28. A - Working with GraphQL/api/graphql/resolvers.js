@@ -160,6 +160,7 @@ module.exports = {
 			.skip((page - 1) * perPage) // If i'm on page 2: 2-1 = 1 -> *2 = 2. The 2 items from page 1 will be skipped
 			.limit(perPage) // Only 2 items will be fetched
 			.populate("creator");
+		console.log(posts);
 
 		// Now returning the object as defined in the schema under postData
 		return {

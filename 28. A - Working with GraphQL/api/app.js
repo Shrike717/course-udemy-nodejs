@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path"); // Needed to build path for serving the images folder statically
+const fs = require("fs");
 const bodyParser = require("body-parser");
 const multer = require("multer"); // Parser for images
 const mongoose = require("mongoose");
@@ -64,8 +65,27 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Middleware to check if  user is authenticated:
+// Middleware to check if user is authenticated:
 app.use(auth);
+
+// Th only REST endpoint is needed for uploading images:
+app.put("/post-image", (req, res, next) => {
+	// This check protects the route
+	if (!req.isAuth) {
+		throw new Error("Not authenticated!");
+	}
+	// Checking if a / new image was added. If not, we are done
+	if (!req.file) {
+		return res.status(200).json({ message: "No file provided." });
+	}
+	// If there is an old image we delete it
+	if (req.body.oldPath) {
+		clearImage(req.body.oldPath);
+	}
+	return res
+		.status(201)
+		.json({ message: "File stored", filePath: req.file.path }); // Sending back the imageUrl
+});
 
 // Middlleware for gaphql:
 app.all("/graphql", (req, res) =>
@@ -124,3 +144,11 @@ mongoose
 	.catch((err) => {
 		console.log(err);
 	});
+
+// Helper function to delete old mage when post was pdated with a new image:
+const clearImage = (filePath) => {
+	// First constructing filePath to old image:
+	filePath = path.join(__dirname, "..", filePath);
+	// Then deleting old image:
+	fs.unlink(filePath, (err) => console.log(err));
+};
