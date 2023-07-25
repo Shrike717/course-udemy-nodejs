@@ -43,53 +43,7 @@ class Feed extends Component {
 			.catch(this.catchError);
 
 		this.loadPosts();
-
-		// // Establishes connecion to BE server
-		// const socket = openSocket("http://localhost:8080");
-		// // Listening to the event defined in h BE:
-		// socket.on("posts", (data) => {
-		// 	if (data.action === "create") {
-		// 		this.addPost(data.post);
-		// 	} else if (data.action === "update") {
-		// 		this.updatePost(data.post);
-		// 	} else if (data.action === "delete") {
-		// 		this.loadPosts();
-		// 	}
-		// });
 	}
-
-	// // Renders new post immediately without reloading page Websocke
-	// addPost = (post) => {
-	// 	this.setState((prevState) => {
-	// 		const updatedPosts = [...prevState.posts];
-	// 		if (prevState.postPage === 1) {
-	// 			if (prevState.posts.length >= 2) {
-	// 				updatedPosts.pop();
-	// 			}
-	// 			updatedPosts.unshift(post);
-	// 		}
-	// 		return {
-	// 			posts: updatedPosts,
-	// 			totalPosts: prevState.totalPosts + 1,
-	// 		};
-	// 	});
-	// };
-
-	// // Renders updated post immediately without reloading page Websocket
-	// updatePost = (post) => {
-	// 	this.setState((prevState) => {
-	// 		const updatedPosts = [...prevState.posts];
-	// 		const updatedPostIndex = updatedPosts.findIndex(
-	// 			(p) => p._id === post._id
-	// 		);
-	// 		if (updatedPostIndex > -1) {
-	// 			updatedPosts[updatedPostIndex] = post;
-	// 		}
-	// 		return {
-	// 			posts: updatedPosts,
-	// 		};
-	// 	});
-	// };
 
 	loadPosts = (direction) => {
 		// console.log(this.props.token);
@@ -115,6 +69,7 @@ class Feed extends Component {
                         _id
                         title
                         content
+                        imageUrl
                         creator {
                             name
                         }
@@ -211,42 +166,57 @@ class Feed extends Component {
 		this.setState({
 			editLoading: true,
 		});
-		// Set up data (with image!) as JS form-data. Creates a multipart/form-data; headerr automatcally
+		// Set up data (with image!) as JS form-data. Creates a multipart/form-data; header automatcally
 		const formData = new FormData();
-		formData.append("title", postData.title);
-		formData.append("content", postData.content);
 		formData.append("image", postData.image);
-
-		let graphqlQuery = {
-			query: `
-                mutation {
-                    createPost(
-                        postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "Some url"}
-                    ) {
-                        _id
-                        title
-                        content
-                        imageUrl
-                        creator {
-                            name
-                        }
-                        createdAt
-                        updatedAt
-                    }
-                }
-            `,
-		};
-
-		fetch("http://localhost:8080/graphql", {
-			// Configuring request to GQ with user data from input modal:
-			method: "POST",
+		// If we are  editing we append the imageUrl of the old image
+		if (this.state.editPost) {
+			formData.append("oldPath", this.state.editPost.imagePath);
+		}
+		// Request to send the image to REST API endpoint and getting back imageUrl to then use in Query request with GQ below
+		return fetch("http://localhost:8080/post-image", {
+			method: "PUT",
 			headers: {
 				// Header to append the JWT Token
 				Authorization: "Bearer " + this.props.token,
-				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(graphqlQuery),
+			body: formData,
 		})
+			.then((res) => res.json())
+			.then((fileResData) => {
+				// Now we can extract imageUrl
+				const imageUrl = fileResData.filePath;
+				let graphqlQuery = {
+					query: `
+                        mutation {
+                            createPost(
+                                postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "${imageUrl}"}
+                            ) {
+                                _id
+                                title
+                                content
+                                imageUrl
+                                creator {
+                                    name
+                                }
+                                createdAt
+                                updatedAt
+                            }
+                        }
+                    `,
+				};
+
+				return fetch("http://localhost:8080/graphql", {
+					// Configuring request to GQ with user data from input modal:
+					method: "POST",
+					headers: {
+						// Header to append the JWT Token
+						Authorization: "Bearer " + this.props.token,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(graphqlQuery),
+				});
+			})
 			.then((res) => {
 				return res.json(); // Extracting response body from JSON to JS
 			})
@@ -268,6 +238,7 @@ class Feed extends Component {
 					title: resData.data.createPost.title,
 					content: resData.data.createPost.content,
 					creator: resData.data.createPost.creator,
+					imagePath: resData.data.createPost.imageUrl,
 					createdAt: resData.data.createPost.createdAt,
 				};
 				// Code to render a new post immediately:
@@ -289,6 +260,7 @@ class Feed extends Component {
 						editLoading: false,
 					};
 				});
+				this.loadPosts(); // My doing. After coding image upload posts weren't fetched othewise
 			})
 			.catch((err) => {
 				console.log(err);
