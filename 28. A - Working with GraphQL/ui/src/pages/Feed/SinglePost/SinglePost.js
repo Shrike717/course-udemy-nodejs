@@ -15,28 +15,51 @@ class SinglePost extends Component {
 	// Similar to useEffect hook when component renders
 	componentDidMount() {
 		const postId = this.props.match.params.postId;
-		fetch("http://localhost:8080/feed/post/" + postId, {
+		// The query object:
+		const graphqlQuery = {
+			query: `
+                {
+                    getPost (id: "${postId}") {
+                        title
+                        content
+                        creator {
+                            name
+                        }
+                        imageUrl
+                        createdAt
+                    }
+                }
+                `,
+		};
+		fetch("http://localhost:8080/graphql", {
+			method: "POST",
 			headers: {
 				// Header to append the JWT Token
 				Authorization: "Bearer " + this.props.token,
+				"Content-Type": "application/json",
 			},
+			body: JSON.stringify(graphqlQuery),
 		})
 			.then((res) => {
-				if (res.status !== 200) {
-					throw new Error("Failed to fetch status");
-				}
 				return res.json();
 			})
 			.then((resData) => {
+				console.log(resData);
+				// If there are errors throw new error
+				if (resData.errors) {
+					throw new Error("Fetching post failed");
+				}
 				this.setState({
 					// Sets all PoS with extracted data from post in reponse body coming from DB
-					title: resData.post.title,
-					author: resData.post.creator.name,
-					image: "http://localhost:8080/" + resData.post.imageUrl,
-					date: new Date(resData.post.createdAt).toLocaleDateString(
-						"en-US"
-					),
-					content: resData.post.content,
+					title: resData.data.getPost.title,
+					author: resData.data.getPost.creator.name,
+					image:
+						"http://localhost:8080/" +
+						resData.data.getPost.imageUrl,
+					date: new Date(
+						resData.data.getPost.createdAt
+					).toLocaleDateString("en-US"),
+					content: resData.data.getPost.content,
 				});
 			})
 			.catch((err) => {
