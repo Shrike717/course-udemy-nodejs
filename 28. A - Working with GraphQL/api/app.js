@@ -101,8 +101,8 @@ app.all("/graphql", (req, res) =>
 			getPost: (args) => graphqlResolver.getPost(args, req),
 			updatePost: (args) => graphqlResolver.updatePost(args, req),
 			deletePost: (args) => graphqlResolver.deletePost(args, req),
-			// user: (args) => graphqlResolver.user(args, req),
-			// updateStatus: (args) => graphqlResolver.updateStatus(args, req),
+			user: (args) => graphqlResolver.user(args, req),
+			updateStatus: (args) => graphqlResolver.updateStatus(args, req),
 		},
 		// This handles "custom" errors:
 		formatError: (err) => {
