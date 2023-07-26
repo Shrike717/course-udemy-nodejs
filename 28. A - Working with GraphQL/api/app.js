@@ -78,6 +78,7 @@ app.put("/post-image", (req, res, next) => {
 	if (!req.file) {
 		return res.status(200).json({ message: "No file provided." });
 	}
+
 	// If there is an old image we delete it
 	if (req.body.oldPath) {
 		clearImage(req.body.oldPath);
@@ -98,7 +99,7 @@ app.all("/graphql", (req, res) =>
 			createPost: (args) => graphqlResolver.createPost(args, req),
 			getPosts: (args) => graphqlResolver.getPosts(args, req),
 			getPost: (args) => graphqlResolver.getPost(args, req),
-			// updatePost: (args) => graphqlResolver.updatePost(args, req),
+			updatePost: (args) => graphqlResolver.updatePost(args, req),
 			// deletePost: (args) => graphqlResolver.deletePost(args, req),
 			// user: (args) => graphqlResolver.user(args, req),
 			// updateStatus: (args) => graphqlResolver.updateStatus(args, req),
@@ -148,7 +149,8 @@ mongoose
 // Helper function to delete old mage when post was pdated with a new image:
 const clearImage = (filePath) => {
 	// First constructing filePath to old image:
-	filePath = path.join(__dirname, "..", filePath);
+	filePath = path.join(__dirname, ".", filePath);
+
 	// Then deleting old image:
 	fs.unlink(filePath, (err) => console.log(err));
 };
