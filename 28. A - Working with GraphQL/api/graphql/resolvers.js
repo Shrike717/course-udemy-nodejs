@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
@@ -5,6 +7,7 @@ require("dotenv").config();
 
 const User = require("../models/user");
 const Post = require("../models/post");
+const { clearImage } = require("../util/file.js");
 
 // A resolver gives back the data. Like controller in REST
 module.exports = {
@@ -233,8 +236,8 @@ module.exports = {
 			error.code = 422;
 			throw error;
 		}
-		// Check if the user tryn to edt is also the creator:
-		if (post.creator._id.toString() !== post.creator._id.toString()) {
+		// Check if the user trying to edt is also the creator:
+		if (post.creator._id.toString() !== req.userId.toString()) {
 			const error = new Error("User is not authorized!");
 			error.code = 403;
 			throw error;
@@ -256,5 +259,40 @@ module.exports = {
 			createdAt: post.createdAt.toISOString(),
 			updatedAt: post.updatedAt.toISOString(),
 		};
+	},
+
+	deletePost: async function ({ id }, req) {
+		// Checking if user is authenticated:
+		if (!req.isAuth) {
+			const error = new Error("User is not authenticated.");
+			error.code = 401;
+			throw error;
+		}
+		// Getting the post which should be deleted from DB
+		const post = await Post.findById(id);
+		if (!post) {
+			const error = new Error("No post found!");
+			error.code = 404;
+			throw error;
+		}
+		// Check if the user trying to edit is also the creator:
+		// We didn't populate the creator therefore we grab the creator id directly
+		if (post.creator.toString() !== req.userId.toString()) {
+			const error = new Error("User is not authorized!");
+			error.code = 403;
+			throw error;
+		}
+		// Deleting the image:
+		clearImage(post.imageUrl);
+		// Now deleting post from DB:
+		await Post.findByIdAndRemove(id);
+		// First getting user to delete post from user
+		const user = await User.findById(req.userId);
+		// Now deleting post from user:
+		user.posts.pull(id);
+		// And saving user again:
+		await user.save();
+		// And returning the needed Boolean value:
+		return true;
 	},
 };
