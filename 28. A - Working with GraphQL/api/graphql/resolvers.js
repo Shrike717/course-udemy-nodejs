@@ -197,4 +197,64 @@ module.exports = {
 			updatedAt: post.updatedAt.toISOString(),
 		};
 	},
+
+	updatePost: async function ({ id, postInput }, req) {
+		// Checking if user is authenticated:
+		if (!req.isAuth) {
+			const error = new Error("User is not authenticated.");
+			error.code = 401;
+			throw error;
+		}
+		const post = await Post.findById(id).populate("creator");
+		if (!post) {
+			const error = new Error("No post found!");
+			error.code = 404;
+			throw error;
+		}
+		// Validation:
+		const errors = [];
+		// Checking title:
+		if (
+			validator.isEmpty(postInput.title) ||
+			!validator.isLength(postInput.title, { min: 5 })
+		) {
+			errors.push("Title is invalid.");
+		}
+		// Checking content:
+		if (
+			validator.isEmpty(postInput.content) ||
+			!validator.isLength(postInput.content, { min: 5 })
+		) {
+			errors.push("Content is invalid.");
+		}
+		if (errors.length > 0) {
+			const error = new Error("Invalid input!");
+			error.data = errors;
+			error.code = 422;
+			throw error;
+		}
+		// Check if the user tryn to edt is also the creator:
+		if (post.creator._id.toString() !== post.creator._id.toString()) {
+			const error = new Error("User is not authorized!");
+			error.code = 403;
+			throw error;
+		}
+		// Now i know input is valid and user is authorized. I can create the updated pos:
+		post.title = postInput.title;
+		post.content = postInput.content;
+		// Check if image was changged:
+		if (postInput.imageUrl !== "undefined") {
+			// Has to b checked against a string "undefined"
+			post.imageUrl = postInput.imageUrl;
+		}
+		// And save it:
+		const updatedPost = await post.save();
+		// return:
+		return {
+			...updatedPost._doc,
+			id: post._id.toString(),
+			createdAt: post.createdAt.toISOString(),
+			updatedAt: post.updatedAt.toISOString(),
+		};
+	},
 };

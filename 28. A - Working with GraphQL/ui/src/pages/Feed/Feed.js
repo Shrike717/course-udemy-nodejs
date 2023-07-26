@@ -205,6 +205,28 @@ class Feed extends Component {
                         }
                     `,
 				};
+				// Changing grraphqlQuuery depending on creatin a new post or  editing post:
+				if (this.state.editPost) {
+					graphqlQuery = {
+						query: `
+                            mutation {
+                                updatePost(id: "${this.state.editPost._id}",
+                                    postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "${imageUrl}"}
+                                ) {
+                                    _id
+                                    title
+                                    content
+                                    imageUrl
+                                    creator {
+                                        name
+                                    }
+                                    createdAt
+                                    updatedAt
+                                }
+                            }
+                        `,
+					};
+				}
 
 				return fetch("http://localhost:8080/graphql", {
 					// Configuring request to GQ with user data from input modal:
@@ -232,14 +254,19 @@ class Feed extends Component {
 				if (resData.errors) {
 					throw new Error("User login failed");
 				}
+				// Extracting the response depending wether we are creatin or editing a post:
+				let mutationResult = "createPost";
+				if (this.state.editPost) {
+					mutationResult = "updatePost";
+				}
 				const post = {
 					// Creating new / updated post with extracted data coming from BE
-					_id: resData.data.createPost._id,
-					title: resData.data.createPost.title,
-					content: resData.data.createPost.content,
-					creator: resData.data.createPost.creator,
-					imagePath: resData.data.createPost.imageUrl,
-					createdAt: resData.data.createPost.createdAt,
+					_id: resData.data[mutationResult]._id,
+					title: resData.data[mutationResult].title,
+					content: resData.data[mutationResult].content,
+					creator: resData.data[mutationResult].creator,
+					imagePath: resData.data[mutationResult].imageUrl,
+					createdAt: resData.data[mutationResult].createdAt,
 				};
 				// Code to render a new post immediately:
 				this.setState((prevState) => {
