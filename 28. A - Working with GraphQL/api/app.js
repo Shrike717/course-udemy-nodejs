@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path"); // Needed to build path for serving the images folder statically
-const fs = require("fs");
 const bodyParser = require("body-parser");
 const multer = require("multer"); // Parser for images
 const mongoose = require("mongoose");
@@ -10,6 +9,7 @@ const { createHandler } = require("graphql-http/lib/use/express"); // Package us
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
 const auth = require("./middleware/auth");
+const { clearImage } = require("./util/file.js");
 
 const app = express();
 
@@ -39,7 +39,7 @@ const fileFilter = (req, file, cb) => {
 // Register Middleware for parsing incoming JSON data from request bodies (applicaton/json)
 app.use(bodyParser.json());
 
-// Register Middleware to parse incomiing files with multer:
+// Register Middleware to parse incoming files with multer:
 app.use(
 	multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
@@ -100,7 +100,7 @@ app.all("/graphql", (req, res) =>
 			getPosts: (args) => graphqlResolver.getPosts(args, req),
 			getPost: (args) => graphqlResolver.getPost(args, req),
 			updatePost: (args) => graphqlResolver.updatePost(args, req),
-			// deletePost: (args) => graphqlResolver.deletePost(args, req),
+			deletePost: (args) => graphqlResolver.deletePost(args, req),
 			// user: (args) => graphqlResolver.user(args, req),
 			// updateStatus: (args) => graphqlResolver.updateStatus(args, req),
 		},
@@ -145,12 +145,3 @@ mongoose
 	.catch((err) => {
 		console.log(err);
 	});
-
-// Helper function to delete old mage when post was pdated with a new image:
-const clearImage = (filePath) => {
-	// First constructing filePath to old image:
-	filePath = path.join(__dirname, ".", filePath);
-
-	// Then deleting old image:
-	fs.unlink(filePath, (err) => console.log(err));
-};
