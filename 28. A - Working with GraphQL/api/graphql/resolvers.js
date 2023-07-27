@@ -84,7 +84,7 @@ module.exports = {
 			{ expiresIn: "1h" }
 		);
 		// Now we have to return what was needed in the login query in the schema in AuthData:
-		return { token: token, userId: user._id.toString() };
+		return { token: token, userId: user._id.toString(), name: user.name };
 	},
 
 	createPost: async function ({ postInput }, req) {
