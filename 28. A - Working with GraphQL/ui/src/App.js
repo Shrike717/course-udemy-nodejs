@@ -70,6 +70,7 @@ class App extends Component {
 		        login(email: "${authData.email}", password: "${authData.password}") {
 		            token
 		            userId
+                    name
 		        }
 		    }`,
 		};
