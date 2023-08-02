@@ -27,7 +27,10 @@ const navigationItems = (props) => [
 		)),
 	props.isAuth && (
 		<>
-			<li className="navigation-item navigation-item__user" key="user">
+			<li
+				className="navigation-item navigation-item__user"
+				key={props.userName}
+			>
 				{props.userName}
 			</li>
 			<li className="navigation-item" key="logout">
