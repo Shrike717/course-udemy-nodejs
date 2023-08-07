@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const https = require("https");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -110,6 +111,10 @@ app.use(
 // Using csrf Middleware AFTER creating session
 app.use(csrfProtection);
 
+// Reading the private key to setup a htttps server. readFileSync will block execution until file is read.
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
+
 // Initialising connect flash (Must be after session)
 app.use(flash());
 
@@ -169,7 +174,10 @@ app.use((error, req, res, next) => {
 mongoose
 	.connect(process.env.DB_URI)
 	.then((result) => {
-		app.listen(3000);
+		// https
+		// 	.createServer({ key: privateKey, cert: certificate }, app)
+		// 	.listen(process.env.PORT || 3000);
+		app.listen(process.env.PORT || 3000);
 	})
 	.catch((err) => {
 		console.log(err);
