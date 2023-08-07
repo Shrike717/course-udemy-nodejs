@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -11,6 +12,7 @@ const flash = require("connect-flash");
 const multer = require("multer");
 const helmet = require("helmet");
 const compression = require("compression");
+const morgan = require("morgan");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -74,6 +76,15 @@ app.use(
 
 // Middleware to compress response bodies:
 app.use(compression());
+
+// This varriable receives a stream and will save the logs into a file
+const accessLogStream = fs.createWriteStream(
+	path.join(__dirname, "access.log"),
+	{ flags: "a" }
+);
+
+// Middleware to create logs when in production:
+app.use(morgan("combined", { stream: accessLogStream }));
 
 // Middleware Parsing:
 app.use(bodyParser.urlencoded({ extended: false }));
