@@ -65,11 +65,15 @@ exports.login = async (req, res, next) => {
 			token: token,
 			userId: loadedUser._id.toString(),
 		});
+		// We need our code to return somethin in order to have a promise we can use in our test code
+		return;
 	} catch (err) {
 		// This is the default error code. Fires f.e. when the DB connection failed
 		if (!err.statusCode) {
 			err.statusCode = 500;
 		}
+		// We need our code to return somethin in order to have a promise we can use in our test code
+		return err;
 		next(err);
 	}
 };
