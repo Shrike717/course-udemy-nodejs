@@ -66,6 +66,7 @@ exports.login = async (req, res, next) => {
 			userId: loadedUser._id.toString(),
 		});
 	} catch (err) {
+		// This is the default error code. Fires f.e. when the DB connection failed
 		if (!err.statusCode) {
 			err.statusCode = 500;
 		}
