@@ -88,8 +88,17 @@ describe("Auth Controller-Login", () => {
 						// This callback executes once my controller is done. Now i can define the expectations
 						// We expect the res object to have a status code of 200
 						expect(res.statusCode).to.be.equal(200);
-						expect(res.userStatus).to.be.equal("I am new!");
-						done();
+						expect(res.userStatus).to.be.equal("I am new!!");
+						// Cleaning up the user again before disconnecting from DB
+						User.deleteMany({})
+							.then(() => {
+								// Deletes all users
+								// Closing the connection to the DB before calling done(). This quits the test process
+								return mongoose.disconnect();
+							})
+							.then(() => {
+								done();
+							});
 					})
 					.catch((err) => {
 						done(err);
