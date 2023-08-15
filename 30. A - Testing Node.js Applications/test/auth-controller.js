@@ -36,6 +36,12 @@ describe("Auth Controller", () => {
 				done();
 			});
 	});
+
+	// This are the hooks to wrap it test functions:
+	// beforeEach(() => {});
+	// // it()....
+	// afterEach(() => {});
+
 	// Test to check wether an error 500 is thrown when DB access failes for some reason
 	it("should throw an error code 500 when accessing the DB fails", (done) => {
 		// Stubbing the DB connection
