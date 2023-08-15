@@ -1,0 +1,9 @@
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# local node_modules folder:
+node_modules
