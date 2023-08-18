@@ -3,7 +3,17 @@ const num1Element = document.getElementById("num1");
 const num2Element = document.getElementById("num2");
 const buttonElement = document.querySelector("button");
 function add(num1, num2) {
-    return num1 + num2;
+    // Running different code for different types of inputs
+    if (typeof num1 === "number" && typeof num2 === "number") {
+        return num1 + num2;
+    }
+    else if (typeof num1 === "string" && typeof num2 === "string") {
+        return num1 + " " + num2;
+    }
+    else {
+        // For mixed types we force a conversion to a number
+        return +num1 + +num2;
+    }
 }
 // Possibily 1 to check if there is a button element:
 if (buttonElement) {
@@ -14,6 +24,9 @@ if (buttonElement) {
         const num2 = num2Element.value;
         // Now passing the value of the function:
         const result = add(+num1, +num2);
+        // We also need to have the functon working with strings
+        const stringResult = add(num1, num2);
         console.log(result);
+        console.log(stringResult);
     });
 }
