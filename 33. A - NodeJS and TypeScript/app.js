@@ -4,6 +4,7 @@ var buttonElement = document.querySelector("button");
 function add(num1, num2) {
     return num1 + num2;
 }
+
 // Adding eventlistener:
 buttonElement.addEventListener("click", function () {
     // Now extacting the values of the input fields.
