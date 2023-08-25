@@ -6,7 +6,18 @@ const buttonElement = document.querySelector("button")!;
 const numResult: number[] = [];
 const textResult: string[] = [];
 
-function add(num1: number | string, num2: number | string) {
+// Using Type Alias to define a union type:
+type NumOrString = number | string;
+// Using Type Alias to define an object type:
+type Result = { val: number; timestamp: Date };
+
+// Using an interface to define an object type
+interface ResultObj {
+	val: number;
+	timestamp: Date;
+}
+
+function add(num1: NumOrString, num2: NumOrString) {
 	// Running different code for different types of inputs
 	if (typeof num1 === "number" && typeof num2 === "number") {
 		return num1 + num2;
@@ -19,8 +30,7 @@ function add(num1: number | string, num2: number | string) {
 }
 
 // Function which receives an object:
-// Here the object type is defined
-function printResult(resultObj: { val: number; timestamp: Date }) {
+function printResult(resultObj: ResultObj) {
 	console.log(resultObj.val, resultObj.timestamp);
 }
 
