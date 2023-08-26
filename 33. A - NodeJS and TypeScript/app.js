@@ -3,6 +3,9 @@ const num1Element = document.getElementById("num1");
 const num2Element = document.getElementById("num2");
 const buttonElement = document.querySelector("button");
 // Here we initialize two arrays and define them as array-types:
+// const numResult: number[] = [];
+// const textResult: string[] = [];
+// Array definitions as generic types: Array is the outer type, in angle brackets we have the inner type
 const numResult = [];
 const textResult = [];
 function add(num1, num2) {
@@ -19,7 +22,6 @@ function add(num1, num2) {
     }
 }
 // Function which receives an object:
-// Here the object type is defined
 function printResult(resultObj) {
     console.log(resultObj.val, resultObj.timestamp);
 }
@@ -44,3 +46,12 @@ if (buttonElement) {
         printResult({ val: result, timestamp: new Date() });
     });
 }
+// Promise as an example for a generic type definition:
+const myPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve("This worked!");
+    }, 2000);
+});
+myPromise.then((result) => {
+    console.log(result.split("w"));
+});
