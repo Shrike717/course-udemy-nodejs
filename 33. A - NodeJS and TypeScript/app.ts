@@ -3,8 +3,12 @@ const num2Element = document.getElementById("num2") as HTMLInputElement;
 const buttonElement = document.querySelector("button")!;
 
 // Here we initialize two arrays and define them as array-types:
-const numResult: number[] = [];
-const textResult: string[] = [];
+// const numResult: number[] = [];
+// const textResult: string[] = [];
+
+// Array definitions as generic types: Array is the outer type, in angle brackets we have the inner type
+const numResult: Array<number> = [];
+const textResult: Array<string> = [];
 
 // Using Type Alias to define a union type:
 type NumOrString = number | string;
@@ -56,3 +60,14 @@ if (buttonElement) {
 		printResult({ val: result as number, timestamp: new Date() });
 	});
 }
+
+// Promise as an example for a generic type definition:
+const myPromise = new Promise<string>((resolve, reject) => {
+	setTimeout(() => {
+		resolve("This worked!");
+	}, 2000);
+});
+
+myPromise.then((result) => {
+	console.log(result.split("w"));
+});
