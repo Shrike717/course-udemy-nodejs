@@ -1,7 +1,11 @@
 import { Router } from "express";
 
-// Importing the object type for a todo
+// Importing the interface object type for a todo
 import { ToDo } from "../models/todos";
+
+// We define the body and the params as object type aliases:
+type RequestBody = { text: string };
+type RequestParams = { todoId: string };
 
 // For this dummy REST API we store the Todos here. Only in memory.
 let todos: ToDo[] = []; // We define the Array with our interface ToDo
@@ -16,10 +20,12 @@ router.get("/", (req, res, next) => {
 
 // Route to add a Todo:
 router.post("/todo", (req, res, next) => {
+	// Type conversion with type casting:
+	const body = req.body as RequestBody;
 	// Create a new Todo:
 	const newTodo: ToDo = {
 		id: new Date().toISOString(),
-		text: req.body.text,
+		text: body.text,
 	};
 	// Then pushing the new Todo to the todos array:
 	todos.push(newTodo);
@@ -33,8 +39,12 @@ router.post("/todo", (req, res, next) => {
 
 // Route to update a Todo. We replace the inccoming text of a Todo but keep the id
 router.put("/todo/:todoId", (req, res, next) => {
+	// Type conversion with type casting:
+	const body = req.body as RequestBody;
+	const params = req.params as RequestParams;
+
 	// Extracting the id from params:
-	const tid = req.params.todoId; // todoId is available because we defined it as such in the dynamic part of the route
+	const tid = params.todoId; // todoId is available because we defined it as such in the dynamic part of the route
 	// Now we have to find the index of the todo in our array so that we can update it:
 	// We coompare the id of every todo in the array with the incoming id. If it is equal we get true and find the index
 	const todoIndex = todos.findIndex((todoItem) => todoItem.id === tid);
@@ -42,8 +52,8 @@ router.put("/todo/:todoId", (req, res, next) => {
 	if (todoIndex >= 0) {
 		// And update the text todo:
 		todos[todoIndex] = {
-			id: todos[todoIndex].id, // We kkeep existing id
-			text: req.body.text,
+			id: todos[todoIndex].id, // We keep existing id
+			text: body.text,
 		};
 		// And then return the response. This has to be with a exlplicit return so that we don't send the response below aswell
 		return res
@@ -56,9 +66,12 @@ router.put("/todo/:todoId", (req, res, next) => {
 
 // Route to delete a todo:
 router.delete("/todo/:todoId", (req, res, next) => {
+	// Type conversion with type casting:
+	const params = req.params as RequestParams;
+
 	// Here we want to overwrite the todos array wiithout the todo we want to delete:
 	// If the todo id of the todo in the array is NOT the id of todo we want to delete it becomes true. Todo passes
-	todos = todos.filter((todoItem) => todoItem.id !== req.params.todoId);
+	todos = todos.filter((todoItem) => todoItem.id !== params.todoId);
 	// Then send back the response:
 	res.status(200).json({
 		message: "Todo deleted successfully.",
