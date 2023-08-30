@@ -1,7 +1,10 @@
-// Declaring variable with type definition
-let message: string;
+const text = "This is a test and should be stored in a file!";
 
-// Assigning value to it:
-message = "Hi there!";
+// Using the global function TextEncoder to convert our textt into an array of bytes:
+const encoder = new TextEncoder();
+const data = encoder.encode(text);
 
-console.log(message);
+// writeFile retuns a promise
+Deno.writeFile("message.txt", data).then(() => {
+	console.log("Wrote to file!");
+});
