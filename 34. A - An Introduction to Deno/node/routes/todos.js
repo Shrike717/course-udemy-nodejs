@@ -53,7 +53,7 @@ router.put("/todo/:todoId", (req, res, next) => {
 
 // Route to delete a todo:
 router.delete("/todo/:todoId", (req, res, next) => {
-	// Here we want to overwrite the todos array wiithout the todo we want to delete:
+	// Here we want to overwrite the todos array without the todo we want to delete:
 	// If the todo id of the todo in the array is NOT the id of todo we want to delete it becomes true. Todo passes
 	todos = todos.filter((todoItem) => todoItem.id !== req.params.todoId);
 	// Then send back the response:
