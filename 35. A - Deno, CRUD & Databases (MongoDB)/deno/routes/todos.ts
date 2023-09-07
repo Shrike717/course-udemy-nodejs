@@ -21,7 +21,7 @@ router.get("/todos", (ctx) => {
 });
 
 // Route to add a todo:
-router.post("/todo", async (ctx) => {
+router.post("/todos", async (ctx) => {
 	// We extract the body: Oak automatically parses JSON body when detecting a JSON header
 	const result = ctx.request.body();
 	// console.log(result);
@@ -44,7 +44,7 @@ router.post("/todo", async (ctx) => {
 });
 
 // Route to update a Todo. We replace the inccoming text of a Todo but keep the id
-router.put("/todo/:todoId", async (ctx) => {
+router.put("/todos/:todoId", async (ctx) => {
 	// We extract the todoId:
 	const tid = ctx.params.todoId;
 
@@ -71,7 +71,7 @@ router.put("/todo/:todoId", async (ctx) => {
 });
 
 // Route to delete a todo:
-router.delete("/todo/:todoId", (ctx) => {
+router.delete("/todos/:todoId", (ctx) => {
 	// Here we want to overwrite the todos array without the todo we want to delete:
 	// If the todo id of the todo in the array is NOT the id of todo we want to delete it becomes true. Todo passes
 	todos = todos.filter((todoItem) => todoItem.id !== ctx.params.todoId);
