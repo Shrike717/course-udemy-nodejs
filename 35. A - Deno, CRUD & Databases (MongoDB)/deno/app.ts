@@ -19,4 +19,4 @@ app.use(todosRoutes.routes());
 app.use(todosRoutes.allowedMethods());
 
 // Then listening on a port with top level await
-await app.listen({ port: 3000 });
+await app.listen({ port: 8000 });
