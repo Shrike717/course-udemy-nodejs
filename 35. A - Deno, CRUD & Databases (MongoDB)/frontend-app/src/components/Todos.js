@@ -5,7 +5,7 @@ import "./Todos.css";
 const Todos = () => {
 	const [todos, setTodos] = useState([]); // The array for all todos
 	const [editedTodo, setEditedTodo] = useState(); // State if we edit a todo
-	const [enteredText, setEnteredText] = useState(""); // State for input control. !!!
+	const [enteredText, setEnteredText] = useState(""); // State for input control
 
 	const getTodos = useCallback(async () => {
 		try {
