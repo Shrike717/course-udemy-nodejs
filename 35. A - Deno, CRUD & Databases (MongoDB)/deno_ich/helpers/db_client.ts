@@ -20,8 +20,8 @@ export async function connect() {
 
 	console.log("We are connected to the database", "\n");
 
-	// Here we access the collection
-	db = client.database("todos");
+	// Here we access the collection. We HAVE to use an explicit return!
+	return (db = client.database("todos-deno"));
 }
 
 // Wrapping the access to the DB part into a function we can call from the file app.ts
