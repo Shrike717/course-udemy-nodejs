@@ -4,8 +4,11 @@ import {
 	ObjectId,
 	Collection,
 } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+// Importing dotenv
+import { config } from "https://deno.land/x/dotenv/mod.ts";
+const { DB_URI } = config();
 
-const MONGODB_URI = `mongodb+srv://Daniel:Jjr0hoWrjcL55B0I@cluster0.igzmsfw.mongodb.net/todos?retryWrites=true&w=majority`;
+const MONGODB_URI = DB_URI;
 let db: Database;
 
 export interface TodoDbSchema {
