@@ -20,19 +20,18 @@ app.use(async (ctx, next) => {
 });
 
 // MW to enable all CORS
-app.use(oakCors()); // Enable CORS for All Routes
+// app.use(oakCors()); // Enable CORS for All Routes
 
-// This was not working for PUT and DELETE requests!!
 // // MW setting the CORS headers: we need these 3 essential headers set on every response
-// app.use(async (ctx, next) => {
-// 	ctx.response.headers.set("Access-Control-Allow-Origin", "*"); // * Every domain is allowed
-// 	ctx.response.headers.set(
-// 		"Access-Control-Allow-Method",
-// 		"GET, POST, PUT, DELETE, OPTIONS"
-// 	); // * These methods are allowed
-// 	ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type"); // * These headers are allowed from the FE. Needed to send JSON bodies
-// 	await next();
-// });
+app.use(async (ctx, next) => {
+	ctx.response.headers.set("Access-Control-Allow-Origin", "*"); // * Every domain is allowed
+	ctx.response.headers.set(
+		"Access-Control-Allow-Methods",
+		"GET, POST, PUT, DELETE, OPTIONS"
+	); // * These methods are allowed
+	ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type"); // * These headers are allowed from the FE. Needed to send JSON bodies
+	await next();
+});
 
 // Here we register the routes. Important is the routes() method on todosRoutes object
 app.use(todosRoutes.routes());
